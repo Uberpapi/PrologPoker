@@ -1,4 +1,4 @@
-
+﻿
 :-use_module(library(random)).
 
 % There are 4 different colors
@@ -35,7 +35,8 @@ deck(L):-
   shuffle(L3, L4),
   shuffle(L4, L5),
   shuffle(L5, L6),
-  shuffle(L6, L).
+  shuffle(L6, L7),
+  cup(L7,L).
 
 
 % A list containing all the cards
@@ -45,9 +46,11 @@ createDeck(L):-
 % Shuffle cards and finish by kupera
 shuffle(L1, Result):-
   cut(L1, L2, L3),
-  merge(L2, L3, Res, 1),
-  cut(Res, L4, L5),
-  append(L5, L4, Result). % Använd inte Append
+  merge(L2, L3, Result, 1).
+
+cup(L, Res):-
+    cut(L, L1, L2),
+    append(L1, L2, Res). % Använd inte Append
 
 /* cutting the deck by a random number and putting
 them together and returning a complete deck */
@@ -65,8 +68,10 @@ merge([], [H|T], [H|Result], _):-
 merge([H|T], [], [H|Result], _):-
   merge(T, [], Result, _).
 merge([H|T], L, [H|Result], 1):-
+  L\==[],
   random(1, 3, RanCut),
   merge(L, T, Result, RanCut).
 merge([H|T], L, [H|Result], 2):-
+  L\==[],
   random(1, 3, RanCut),
   merge(T, L, Result, RanCut).
