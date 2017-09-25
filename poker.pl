@@ -8,7 +8,7 @@ color(hearts).
 color(spades).
 
 % There are 13 different values
-value(ace).
+value('A').
 value(2).
 value(3).
 value(4).
@@ -18,9 +18,25 @@ value(7).
 value(8).
 value(9).
 value(10).
-value(jack).
-value(queen).
-value(king).
+value('J').
+value('Q').
+value('K').
+
+game(P1,P2,Flop,Turn,River):-
+  deck(Shuffled),
+  dealtp(Shuffled, P1 , P2, Restfromtp),
+  dealflop(Restfromtp, Flop, Restfromflop),
+  dealturn(Restfromflop, Turn, Restfromturn),
+  dealriver(Restfromturn, River).
+
+dealtp([C1,C2,C3,C4|Deck], [C1,C3], [C2,C4], Deck).
+
+dealflop([_,C2,C3,C4|Deck],[C2,C3,C4], Deck).
+
+dealturn([_,C2|Deck], [C2], Deck).
+
+dealriver([_,C2|_],[C2]).
+
 
 % A card is defined by 2 terms, Color and Value
 card(Color, Value):-
@@ -28,9 +44,10 @@ card(Color, Value):-
   value(Value).
 
 % Create a deck then shuffle it.
-deck(L):-
-  createDeck(L1),
-  shuffle(L1, L, 6).
+deck(Shuffled):-
+  createDeck(Unshuffled),
+  shuffle(Unshuffled, Shuffled, 6).
+
 
 
 % A list containing all the cards
@@ -56,7 +73,7 @@ cup(L, Res):-
 cup([H1|T1], [H1|T2]):-
   (H1, T2 \== []),
   cup(T1, T2).
-cup(L, Res):-
+cup(L, _):-
   L==[].
 
 
