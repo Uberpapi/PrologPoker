@@ -16,7 +16,7 @@ play.
 
 go :-
   createDeck(X),
-  dealtp(X, P1, P2, Y),
-  dealflop(Y, Flop, W),
-  dealturn(W, Turn, Z),
-  dealriver(Z, River).
+  dealtp(X, Y),
+  dealflop(Y, W),
+  dealturn(W, Z),
+  dealriver(Z).

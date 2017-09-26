@@ -1,6 +1,6 @@
 ﻿
-:-module(dealer,[dealtp/4, dealflop/3,
-                  dealturn/3, dealriver/2,
+:-module(dealer,[dealtp/2, dealflop/2,
+                  dealturn/2, dealriver/1,
                   createDeck/1,
                   setListDeck/1, setP1card/1,
                   setP2card/1, setFlop/1,
@@ -19,10 +19,10 @@
 
 
 % There are 4 different colors
-color(clubs).
-color(diamonds).
-color(hearts).
-color(spades).
+color('♣').
+color('♦').
+color('♥').
+color('♠').
 
 % There are 13 different values
 value('A').
@@ -40,23 +40,23 @@ value('Q').
 value('K').
 
 % dealtp(+, -, -, -).
-dealtp([C1,C2,C3,C4|Deck], [C1,C3], [C2,C4], Deck) :-
+dealtp([C1,C2,C3,C4|Deck], Deck) :-
   setP1card([C1, C3]),
   setP2card([C2, C4]),
   setListDeck(Deck).
 
 % dealflop(+, -, -).
-dealflop([_,C2,C3,C4|Deck],[C2,C3,C4], Deck) :-
+dealflop([_,C2,C3,C4|Deck], Deck) :-
   setFlop([C2, C3, C4]),
   setListDeck(Deck).
 
 % dealturn(+, -, -).
-dealturn([_,C2|Deck], [C2], Deck) :-
+dealturn([_,C2|Deck], Deck) :-
   setTurn([C2]),
   setListDeck(Deck).
 
 % dealriver(+, -).
-dealriver([_,C2|_],[C2]) :-
+dealriver([_,C2|_]) :-
   setRiver([C2]).
 
 % A card is defined by 2 terms, Color and Value
