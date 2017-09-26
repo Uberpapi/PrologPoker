@@ -19,13 +19,13 @@
 
 
 % There are 4 different colors
-color('♣').
-color('♦').
-color('♥').
-color('♠').
+color(c).
+color(d).
+color(h).
+color(s).
 
 % There are 13 different values
-value('A').
+value(14).
 value(2).
 value(3).
 value(4).
@@ -35,9 +35,9 @@ value(7).
 value(8).
 value(9).
 value(10).
-value('J').
-value('Q').
-value('K').
+value(11).
+value(12).
+value(13).
 
 % dealtp(+, -, -, -).
 dealtp([C1,C2,C3,C4|Deck], Deck) :-
