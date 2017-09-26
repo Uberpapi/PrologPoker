@@ -23,25 +23,31 @@ value('J').
 value('Q').
 value('K').
 
-
+% dealtp(+, -, -, -).
 dealtp([C1,C2,C3,C4|Deck], [C1,C3], [C2,C4], Deck).
 
+% dealflop(+, -, -).
 dealflop([_,C2,C3,C4|Deck],[C2,C3,C4], Deck).
 
+% dealturn(+, -, -).
 dealturn([_,C2|Deck], [C2], Deck).
 
+% dealriver(+, -).
 dealriver([_,C2|_],[C2]).
 
 % A card is defined by 2 terms, Color and Value
+% card(-, -).
 card(Color, Value):-
   color(Color),
   value(Value).
 
 % Create a deck then shuffle it.
+% deck(-).
 deck(Shuffled):-
   createDeck(Unshuffled),
   random_permutation(Unshuffled,Shuffled).
 
 % A list containing all the cards
+% createDeck(-).
 createDeck(L):-
   findall(card(X, Y), card(X, Y), L).
