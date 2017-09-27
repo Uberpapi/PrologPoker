@@ -1,4 +1,4 @@
-:-module(pokerrules,[sorts/2]).
+:-module(pokerrules,[sorts/2, straight_flush/3, flush/3, straight/2]).
 :-use_module(dealer).
 
 
@@ -47,3 +47,24 @@ oneList([], [H|T],[H|Res]):-
   oneList([], T, Res).
 oneList([H|T], L2, [H|Res]):-
   oneList(T, L2, Res).
+
+%straight_flush(+, -, -) uses flush and straight
+straight_flush(Hand, Color, Value) :-
+  flush(Hand, Color, Value),
+  straight(Hand, Value).
+
+%flush(+, -, -)
+flush([card(X, Y), card(X, _), card(X, _), card(X, _), card(X, _)|_], X, Y).
+
+flush([card(_,_)|R], X, Y) :-
+  flush(R, X, Y).
+
+%straight(+, -)
+straight([card(_, V1), card(_, V2), card(_, V3), card(_, V4), card(_, V5)|_], V1) :-
+  V1 is V2 + 1,
+  V2 is V3 + 1,
+  V3 is V4 + 1,
+  V4 is V5 + 1.
+
+straight([card(_,_)|R], V1) :-
+  straight(R, V1).

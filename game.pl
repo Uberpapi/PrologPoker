@@ -1,6 +1,7 @@
 
 :-module(game,[play/0, done/0, go/0]).
 :-use_module(dealer).
+:-use_module(pokerrules)
 
 p1 :- listing(player1).
 p2 :- listing(player2).
