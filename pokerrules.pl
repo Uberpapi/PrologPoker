@@ -1,4 +1,4 @@
-:-module(pokerrules,[sorts/2, straight_flush/3, flush/3, straight/2]).
+:-module(pokerrules,[sortByNumber/2,sortByColor/2, straight_flush/3, flush/3, straight/2]).
 :-use_module(dealer).
 
 
@@ -12,13 +12,12 @@ successor(two_pair, pair).
 successor(pair, highest_card).
 
 
-sorts(L, Sorted):-
-  sorts(L, [], Sorted).
-sorts([], L, Sorted):-
-  sortByColor(L, Sorted).
-sorts([Card|T], L2, Sorted):-
+sortByNumber(L, Sorted):-
+  sortByNumber(L, [], Sorted).
+sortByNumber([], Sorted, Sorted).
+sortByNumber([Card|T], L2, Sorted):-
   insertNumber(Card, L2, L3),
-  sorts(T, L3, Sorted).
+  sortByNumber(T, L3, Sorted).
 
 insertNumber(card(C1,V1), [card(C2,V2)|T], [card(C2,V2)|F]):-
   V1>V2,
