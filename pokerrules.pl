@@ -1,4 +1,8 @@
-:-module(pokerrules,[sortByNumber/2,sortByColor/2, straight_flush/3, flush/3, straight/2]).
+:-module(pokerrules,[sortByNumber/2, sortByColor/2,
+                    straight_flush/3, four_of_a_kind/2,
+                    full_house/2, flush/3, straight/2,
+                    three_of_a_kind/2, two_pair/2,
+                    pair/2, highest_card/3]).
 :-use_module(dealer).
 
 
@@ -40,21 +44,31 @@ insertColor(card(C1,V1), [card(C2,V2)|T], [card(C1,V1),card(C2,V2)|T]):-
   C1==C2.
 insertColor(card(C,V), [], [card(C,V)]).
 
-
 oneList([], [], []).
 oneList([], [H|T],[H|Res]):-
   oneList([], T, Res).
 oneList([H|T], L2, [H|Res]):-
   oneList(T, L2, Res).
 
-%straight_flush(+, -, -) uses flush and straight
+%straight_flush(+, -, -)
+%uses flush and straight
 straight_flush(Hand, Color, Value) :-
   flush(Hand, Color, Value),
   straight(Hand, Value).
 
+%four_of_a_kind(+, -)
+four_of_a_kind([card(_,V1), card(_,V1), card(_,V1), card(_,V1)|_], V1).
+four_of_a_kind([card(_,_)|R], V1) :-
+  four_of_a_kind(R, V1).
+
+%full_house(+, -)
+full_house([card(_,V1), card(_,V1), card(_,V1), card(_,V2), card(_,V2)|_], V1).
+full_house([card(_,V2), card(_,V2), card(_,V1), card(_,V1), card(_,V1)|_], V1).
+full_house([card(_,_)|R], V1) :-
+  full_house(R, V1).
+
 %flush(+, -, -)
 flush([card(X, Y), card(X, _), card(X, _), card(X, _), card(X, _)|_], X, Y).
-
 flush([card(_,_)|R], X, Y) :-
   flush(R, X, Y).
 
@@ -64,6 +78,29 @@ straight([card(_, V1), card(_, V2), card(_, V3), card(_, V4), card(_, V5)|_], V1
   V2 is V3 + 1,
   V3 is V4 + 1,
   V4 is V5 + 1.
-
 straight([card(_,_)|R], V1) :-
   straight(R, V1).
+
+%three_of_a_kind(+, -)
+three_of_a_kind([card(_,V1), card(_,V1), card(_,V1)|_], V1).
+three_of_a_kind([card(_,_)|R], V1) :-
+  three_of_a_kind(R, V1).
+
+%two_pair(+, -, -)
+%uses pair
+two_pair(Hand, [V1, V2]) :-
+  findall(X, pair(Hand, X), [V1, V2|_]).
+
+%pair(+, -)
+pair([card(_,V1), card(_,V1)|_], V1).
+pair([card(_,_)|R], V1) :-
+  pair(R, V1).
+
+%highest_card(+, +, -)
+highest_card([card(_,V1)|_], [card(_,V2)|_], V1) :-
+  V1 > V2.
+highest_card([card(_,V1)|_], [card(_,V2)|_], V1) :-
+  V2 > V1.
+highest_card([card(_,V1)|H1], [card(_,V2)|H2], V3) :-
+  V1 == V2,
+  highest_card(H1, H2, V3).

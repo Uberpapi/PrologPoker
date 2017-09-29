@@ -20,4 +20,13 @@ go :-
   dealtp(X, Y),
   dealflop(Y, W),
   dealturn(W, Z),
-  dealriver(Z).
+  dealriver(Z),
+  player1Cards(P1),
+  sortByNumber(P1, P1s).
+
+player1Cards(D) :-
+  player1([X, Y]),
+  flop([Z, W, T]),
+  turn([S]),
+  river([Q]),
+  D = [X, Y, Z, W, T, S, Q].
