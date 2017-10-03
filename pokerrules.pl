@@ -3,61 +3,64 @@
                     straight_flush/3, four_of_a_kind/3,
                     full_house/3, flush/3, straight/3,
                     three_of_a_kind/3, two_pair/3, whoWon/2,
-                    pair/3, highest_card/3, reverse/2, remove/3]).
+                    pair/3, highest_card/3, reverse/2, remove/3, nothing/3]).
 :-use_module(dealer).
 
 /*Defining the value of the hand, the
 lower the number the better the hand*/
-handValue(straight_flush, 1).
-handValue(four_of_a_kind, 2).
-handValue(full_house, 3).
-handValue(flush, 4).
-handValue(straight, 5).
-handValue(three_of_a_kind, 6).
-handValue(two_pair, 7).
-handValue(pair, 8).
-handValue(nothing, 9).
+handValue('a straight flush ', 1).
+handValue('four of a kind ', 2).
+handValue('a full house ', 3).
+handValue('a flush ', 4).
+handValue('a straight ', 5).
+handValue('three of a kind ', 6).
+handValue('two pair ', 7).
+handValue('a pair ', 8).
+handValue('highest card ', 9).
 
 %Evaluates your hand
 check(L, FiveBest, V):-
   sortByNumber(L, Res),
-  checkHand(Res, FiveBest, V).
+  checkHand(Res, FiveBest, V),!.
 
 whoWon(Hand1, Hand2):-
 check(Hand1, FiveBest1, V1),
 check(Hand2, FiveBest2, V2),
 winner(V1,V2,Res, FiveBest1,FiveBest2),
-(Res == 1 -> write('You won with'), write(FiveBest1)
-; Res == 2 -> write('You lost vs'), write(FiveBest2)
-; Res == 0 -> write('Ooooh, both had same hand with'), write(FiveBest1)).
+handValue(HV1, V1),
+handValue(HV2, V2),
+(Res == won -> write('You win!'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write(' The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
+; Res == lost -> write('You looose!'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
+; Res == tie -> write('Ooooh, both had same hand! '),nl, write('Both got'), write(HV1), write('with the hand '), write(FiveBest1), nl, write('Its a tie!')).
 
 %Checks for best first
 checkHand(L, FiveBest, V):-
 sortByColor(L, Res), straight_flush(Res, FiveBest, V), !;
 four_of_a_kind(L, V1, V), remove(L, V1, [V5|_]), FiveBest = [V1,V1,V1,V1,V5], !;
 full_house(L, FiveBest, V), !;
-sortByColor(L, Res), write(Res),flush(Res, FiveBest, V), !;
+sortByColor(L, Res),flush(Res, FiveBest, V), !;
 straight(L, FiveBest, V), !;
 three_of_a_kind(L, V1, V), remove(L, V1, [V4,V5|_]), FiveBest = [V1,V1,V1,V4,V5], !;
 two_pair(L, [V1, V2], V), remove(L, V1, V2, [V5|Res]), FiveBest = [V1,V1,V2,V2,V5], !;
-pair(L, V1, V), remove(L, V1, [V3,V4,V5|_]), FiveBest = [V1, V1, V3, V4, V5], !.
+pair(L, V1, V), remove(L, V1, [V3,V4,V5|_]), FiveBest = [V1, V1, V3, V4, V5], !;
+nothing(L, FiveBest, V), !.
 
-winner(V1, V2, 1, _, _):-
-  V1 < V2.
-winner(V1, V2, 2, _, _):-
-  V1 > V2.
-winner(V1, V2, Winner, FiveBest1, FiveBest2):-
-  V1 == V2,
-  tie(FiveBest1, FiveBest2, Winner).
+%Decide a winner!
+winner(V, V, tie, [],[]):- !.
+winner(V1, V2, won, _, _):-
+  V1 < V2,!.
+winner(V1, V2, lost, _, _):-
+  V1 > V2,!.
+winner(V, V, X, FiveBest1, FiveBest2):-
+  tie(FiveBest1,FiveBest2, X), !.
 
-tie([], [], 0).
-tie([V1|_], [V2|_], 1):-
-  V1 > V2.
-tie([V1|_], [V2|_], 2):-
-  V1 < V2.
-tie([V1|R1], [V2|R2], _):-
-  V1 == V2,
-  tie(R1, R2).
+tie([], [], tie):- !.
+tie([V1|_], [V2|_], won):-
+  V1 > V2,!.
+tie([V1|_], [V2|_], lost):-
+  V1 < V2,!.
+tie([V|R1], [V|R2], X):-
+  tie(R1, R2, X).
 
 
 
@@ -145,8 +148,11 @@ findall(X,pair(Hand,X,_),[V1,V2|_]).
 
 %pair(+, -)
 pair([card(_,V1), card(_,V1)|_], V1, 8).
-pair([card(_,_)|R], V1, _) :-
-  pair(R, V1, _).
+pair([card(_,_)|R], V1, 8) :-
+  pair(R, V1, 8).
+
+nothing([card(_,V1),card(_,V2),card(_,V3),card(_,V4),card(_,V5)|_], FiveBest, 9) :-
+  FiveBest = [V1,V2,V3,V4,V5], !.
 
 %highest_card(+, +, -)
 highest_card([card(_,V1)|_], [card(_,V2)|_], V1) :-

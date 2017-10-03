@@ -6,8 +6,8 @@
                   setP2card/1, setFlop/1,
                   setTurn/1, setRiver/1, deck/1,
                   player1/1, player2/1, flop/1,
-                  turn/1, river/1, setPlayerstack/1,
-                  changestack/1, playerstack/1]).
+                  turn/1, river/1, setPokertable/1,
+                  pokertable/1]).
 
 :-use_module(library(random)).
 
@@ -17,7 +17,7 @@
 :- dynamic flop/1.
 :- dynamic turn/1.
 :- dynamic river/1.
-:- dynamic playerstack/1.
+:- dynamic pokertable/1.
 
 
 
@@ -65,8 +65,6 @@ dealriver([_,C2|Deck]) :-
   setRiver([C2]),
   setListDeck(Deck).
 
-changestack(C) :-
-  setPlayerstack([C]).
 
 % A card is defined by 2 terms, Color and Value
 % card(-, -).
@@ -117,8 +115,8 @@ setRiver(_) :-
 setRiver(X) :-
   assert(river(X)).
 
-setPlayerstack(_) :-
-  retract(playerstack(_)),
+setPokertable(_) :-
+  retract(pokertable(_)),
   fail.
-setPlayerstack(X) :-
-  assert(playerstack(X)).
+setPokertable(X) :-
+  assert(pokertable(X)).
