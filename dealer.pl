@@ -1,12 +1,13 @@
 ﻿
-:-module(dealer,[dealtp/2, dealflop/2,
-                  dealturn/2, dealriver/1,
+:-module(dealer,[dealtp/1, dealflop/1,
+                  dealturn/1, dealriver/1,
                   createDeck/1,
                   setListDeck/1, setP1card/1,
                   setP2card/1, setFlop/1,
                   setTurn/1, setRiver/1, deck/1,
                   player1/1, player2/1, flop/1,
-                  turn/1, river/1]).
+                  turn/1, river/1, setPlayerstack/1,
+                  changestack/1, playerstack/1]).
 
 :-use_module(library(random)).
 
@@ -16,6 +17,8 @@
 :- dynamic flop/1.
 :- dynamic turn/1.
 :- dynamic river/1.
+:- dynamic playerstack/1.
+
 
 
 % There are 4 different colors
@@ -40,24 +43,29 @@ value(12).
 value(13).
 
 % dealtp(+, -, -, -).
-dealtp([C1,C2,C3,C4|Deck], Deck) :-
+dealtp([C1,C2,C3,C4|Deck]) :-
   setP1card([C1, C3]),
   setP2card([C2, C4]),
-  setListDeck(Deck).
+  setListDeck(Deck),
+  !.
 
 % dealflop(+, -, -).
-dealflop([_,C2,C3,C4|Deck], Deck) :-
+dealflop([_,C2,C3,C4|Deck]) :-
   setFlop([C2, C3, C4]),
-  setListDeck(Deck).
+  setListDeck(Deck),
+  !.
 
 % dealturn(+, -, -).
-dealturn([_,C2|Deck], Deck) :-
+dealturn([_,C2|Deck]) :-
   setTurn([C2]),
   setListDeck(Deck).
 
 % dealriver(+, -).
 dealriver([_,C2|_]) :-
   setRiver([C2]).
+
+changestack(C) :-
+  setPlayerstack([C]).
 
 % A card is defined by 2 terms, Color and Value
 % card(-, -).
@@ -107,3 +115,9 @@ setRiver(_) :-
   fail.
 setRiver(X) :-
   assert(river(X)).
+
+setPlayerstack(_) :-
+  retract(playerstack(_)),
+  fail.
+setPlayerstack(X) :-
+  assert(playerstack(X)).
