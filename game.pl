@@ -40,43 +40,38 @@ go :-
 
 %First check before turn
 check :-
-    nl,
     deck(Deck),
-    length(Deck, 48),
-    dealflop(Deck),
-    flop,
-    write('check, raise or fold?'),
-    nl.
-%Second check before river
-check :-
-    nl,
-    deck(Deck),
-    length(Deck, 44),
-    dealturn(Deck),
-    turn,
-    write('check, raise or fold?'),
-    nl.
-%Last check
-check :-
-    nl,
-    deck(Deck),
-    length(Deck, 42),
-    dealriver(Deck),
-    river,
+    (   length(Deck, 48) -> dealflop(Deck), flop    %If decksize is 48, deal flop
+      ; length(Deck, 44) -> dealturn(Deck), turn    %If decksize is 44, deal turn
+      ; length(Deck, 42) -> dealriver(Deck), river  %If decksize is 42, deal river
+      ; length(Deck, 40) -> write("Someone won")    %
+      ),
     write('check, raise or fold?'),
     nl.
 
 bet :-
-    nl,
     deck(Deck),
-    length(Deck, 42),
-    dealriver(Deck),
-    river,
+    (   length(Deck, 48) -> dealflop(Deck), flop    %If decksize is 48, deal flop
+      ; length(Deck, 44) -> dealturn(Deck), turn    %If decksize is 44, deal flop
+      ; length(Deck, 42) -> dealriver(Deck), river  %If decksize is 42, deal river
+      ; length(Deck, 40) -> write("Someone won")    %
+      ),
     write('check, raise or fold?'),
     nl.
 
+raise :-
+    deck(Deck),
+  (   length(Deck, 48) -> dealflop(Deck), flop    %If decksize is 48, deal flop
+    ; length(Deck, 44) -> dealturn(Deck), turn    %If decksize is 44, deal flop
+    ; length(Deck, 42) -> dealriver(Deck), river  %If decksize is 42, deal river
+    ; length(Deck, 40) -> write("Someone won")    %
+    ),
+  write('check, raise or fold?'),
+  nl.
+
 fold :-
-write('You lost').
+write('You lost'),
+nl.
 
 
 player1Cards(D) :-

@@ -61,8 +61,9 @@ dealturn([_,C2|Deck]) :-
   setListDeck(Deck).
 
 % dealriver(+, -).
-dealriver([_,C2|_]) :-
-  setRiver([C2]).
+dealriver([_,C2|Deck]) :-
+  setRiver([C2]),
+  setListDeck(Deck).
 
 changestack(C) :-
   setPlayerstack([C]).
