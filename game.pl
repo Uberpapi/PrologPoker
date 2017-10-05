@@ -5,7 +5,7 @@
 :-use_module(ai).
 
 p1 :- player1(X), write(X).
-p2 :- player1(X), write(X).
+p2 :- player2(X), write(X).
 flop :- flop(X), write(X).
 turn :- turn(X), write(X).
 river :- river(X), write(X).
@@ -32,13 +32,12 @@ play :-
 go :-
   createDeck(X),
   dealtp(X),
-  pokertable([Stack, Pot, [B1,B2], Last_to_act]),
+  pokertable([Stack, _, [B1,B2], _]),
   Y is Stack - B2,
   Z is B1+B2,
   (B1 > B2 -> W = ai
   ; W = player),
   setPokertable([Y, Z, [B2,B1], W]),
-  %ai_magic(pre),
   write('Your hand is: '),
   p1,
   nl,
@@ -54,15 +53,14 @@ test :-
 
 check :-
   deck(Deck),
+  write('You check!'),
+  nl,
   pokertable([_, _, _, Last_to_Act]),
-  (   length(Deck, 48), Last_to_Act == player -> write('You check!'), nl, nl, dealflop(Deck), write('Flop is: '), flop, ai_magic(check), write('Do you want to check, bet or fold?')
-    ; length(Deck, 48), Last_to_Act == ai -> write('You check!'), nl, ai_magic(check)
-    ; length(Deck, 44), Last_to_Act == player -> write('You check!'),nl, nl, dealturn(Deck), write('Turn is: '), turn, ai_magic(check), write('Do you want to check, bet or fold?')
-    ; length(Deck, 44), Last_to_Act == ai -> write('You check!'), nl, ai_magic(check)
-    ; length(Deck, 42), Last_to_Act == player -> write('You check!'),nl, nl, dealriver(Deck), write('River is: '), river, ai_magic(check), write('Do you want to check, bet or fold?')
-    ; length(Deck, 42), Last_to_Act == ai -> write('You check!'), nl, ai_magic(check)
-    ; length(Deck, 40), Last_to_Act == player -> write('You check!'), nl, nl, player1Cards(X),player2Cards(Y), whoWon(X,Y)
-    ; length(Deck, 40), Last_to_Act == ai -> write('You check!'), nl, ai_magic(check)
+  (   length(Deck, 48), Last_to_Act == player -> nl, dealflop(Deck), write('Flop is: '), flop, ai_magic(check)
+    ; length(Deck, 44), Last_to_Act == player ->  nl, dealturn(Deck), write('Turn is: '), turn, ai_magic(check)
+    ; length(Deck, 42), Last_to_Act == player ->  nl, dealriver(Deck), write('River is: '), river, ai_magic(check)
+    ; length(Deck, 40), Last_to_Act == player -> nl, player1Cards(X), player2Cards(Y), whoWon(X,Y)
+    ; Last_to_Act == ai -> nl, ai_magic(check)
     ), nl.
 
 bet :-
@@ -78,39 +76,46 @@ bet :-
   nl.
 
 raise :-
+  deck(Deck),
   write('You raise!'),
   nl,
   pokertable([Stack, Pot, [B1,B2], _]),
-  (B1 > B2 -> X = B1
-  ; X = B2),
+  (   B1 > B2 -> X = B1
+    ; X = B2),
   Y is Stack - X*2,
   Z is Pot + X*2,
-  setPokertable([Y, Z, [B1, B2], ai]),
-  %INSERT AI MAGIC HERE
+  S is Stack - X*1.5,
+  P is Pot + X*1.5,
+  (length(Deck, 48) -> setPokertable([S, P, [B1, B2], ai])
+  ; setPokertable([Y, Z, [B1, B2], ai])),
+  ai_magic(raise),
   nl.
 
 call :-
   deck(Deck),
+  write('You call!'),
+  nl,
   pokertable([Stack, Pot, [B1,B2], Last_to_Act]),
-  (B1 > B2 -> X = B1, W = player
-  ; X = B2, W = ai),
+  (   B1 > B2 -> X = B1, W = player
+    ; X = B2, W = ai),
   Y is Stack - X,
   Z is Pot + X,
-  S is Stack - 10,
-  P is Pot + 10,
-  %setPokertable([Y, Z, [B1, B2], W]),
-  (   length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W]), dealflop(Deck), write('Flop is: '), flop, write('check, raise or fold?')
-    ; length(Deck, 48), Last_to_Act == ai -> setPokertable([S, P, [B1, B2], Last_to_Act]), ai_magic(call)
-    ; length(Deck, 44) -> setPokertable([Y, Z, [B1, B2], W]), dealturn(Deck), write('Turn is: '), turn, write('check, raise or fold?')
-    ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river, write('check, raise or fold?')
-    ; length(Deck, 40) -> setPokertable([Y, Z, [B1, B2], W]), write('Someone won')
+  S is Stack - X/2,
+  P is Pot + X/2,
+  (   length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W]), dealflop(Deck), write('Flop is: '), flop
+    ; length(Deck, 48), Last_to_Act == ai -> A = 5, setPokertable([S, P, [B1, B2], Last_to_Act]), ai_magic(call)
+    ; length(Deck, 44) -> setPokertable([Y, Z, [B1, B2], W]), dealturn(Deck), write('Turn is: '), turn
+    ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river
+    ; length(Deck, 40) -> setPokertable([Y, Z, [B1, B2], W]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-    %INSERT AI MAGIC HERE
-    nl.
+  (   W == player, A \== 5 -> ai_magic(call)
+    ; nl, write('Do you want to check, bet or fold?')
+    ),
+  nl.
 
 fold :-
-write('You lost'),
-nl.
+  write('You lost'),
+  nl.
 
 
 player1Cards(D) :-
