@@ -1,5 +1,6 @@
 :-module(ai, [ai_magic/1]).
 :-use_module(dealer).
+:-use_module(aiLogic).
 
 p1 :- player1(X), write(X).
 p2 :- player2(X), write(X).
@@ -9,12 +10,8 @@ river :- river(X), write(X).
 playerstack :- listing(playerstack).
 
 ai_magic(Player_Act) :-
-  ( Player_Act == pre -> pre_flop
-  ; Player_Act == check -> ai_bet
-  ; Player_Act == bet -> ai_raise
-  ; Player_Act == raise -> ai_call
-  ; Player_Act == call -> ai_check
-  ).
+  whatToDo(0, Player_Act, Answer),
+  call(Answer).
 
 pre_flop :-
   pokertable([_, _, _, Last_to_Act]),

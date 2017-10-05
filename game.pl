@@ -3,6 +3,7 @@
 :-use_module(dealer).
 :-use_module(pokerrules).
 :-use_module(ai).
+:-use_module(aiLogic).
 
 p1 :- player1(X), write(X).
 p2 :- player2(X), write(X).
@@ -116,18 +117,3 @@ call :-
 fold :-
   write('You lost'),
   nl.
-
-
-player1Cards(D) :-
-  player1([X, Y]),
-  flop([Z, W, T]),
-  turn([S]),
-  river([Q]),
-  D = [X, Y, Z, W, T, S, Q].
-
-  player2Cards(D) :-
-    player2([X, Y]),
-    flop([Z, W, T]),
-    turn([S]),
-    river([Q]),
-    D = [X, Y, Z, W, T, S, Q].

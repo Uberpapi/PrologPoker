@@ -7,7 +7,8 @@
                   setTurn/1, setRiver/1, deck/1,
                   player1/1, player2/1, flop/1,
                   turn/1, river/1, setPokertable/1,
-                  pokertable/1]).
+                  pokertable/1, player1Cards/1,
+                  player2Cards/1]).
 
 :-use_module(library(random)).
 :-use_module(library(system)).
@@ -67,6 +68,19 @@ dealriver([_,C2|Deck]) :-
   setRiver([C2]),
   setListDeck(Deck).
 
+player1Cards(D) :-
+  player1([X, Y]),
+  flop([Z, W, T]),
+  turn([S]),
+  river([Q]),
+  D = [X, Y, Z, W, T, S, Q].
+
+player2Cards(D) :-
+  player2([X, Y]),
+  flop([Z, W, T]),
+  turn([S]),
+  river([Q]),
+  D = [X, Y, Z, W, T, S, Q].
 
 % A card is defined by 2 terms, Color and Value
 % card(-, -).
