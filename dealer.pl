@@ -10,6 +10,8 @@
                   pokertable/1]).
 
 :-use_module(library(random)).
+:-use_module(library(system)).
+
 
 :- dynamic deck/1.
 :- dynamic player1/1.
@@ -76,6 +78,8 @@ card(Color, Value):-
 % deck(-).
 createDeck(Shuffled):-
   findall(card(X, Y), card(X, Y), L),
+  now(Randomint),
+  setrand(Randomint),
   random_permutation(L, Shuffled).
 
 setListDeck(_) :-
