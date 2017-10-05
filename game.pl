@@ -42,7 +42,7 @@ go :-
   write('Your hand is: '),
   p1,
   nl,
-  ai_magic(pre).
+  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
 
 test :-
   play,
@@ -104,14 +104,15 @@ call :-
   S is Stack - X/2,
   P is Pot + X/2,
   (   length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W]), dealflop(Deck), write('Flop is: '), flop
-    ; length(Deck, 48), Last_to_Act == ai -> A = 5, setPokertable([S, P, [B1, B2], Last_to_Act]), ai_magic(call)
+    ; length(Deck, 48), Last_to_Act == ai -> A = 5, setPokertable([S, P, [B1, B2], Last_to_Act]), ai_magic(check)
     ; length(Deck, 44) -> setPokertable([Y, Z, [B1, B2], W]), dealturn(Deck), write('Turn is: '), turn
     ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river
     ; length(Deck, 40) -> setPokertable([Y, Z, [B1, B2], W]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-  (   W == player, A \== 5 -> ai_magic(call)
-    ; nl, write('Do you want to check, bet or fold?')
-    ),
+  (  length(Deck, 40) -> ! 
+    ;  W == player, A \== 5 -> ai_magic(check)
+    ; A \== 5 -> nl, write('Do you want to check, bet or fold?')
+    ; !),
   nl.
 
 fold :-

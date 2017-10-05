@@ -25,10 +25,10 @@
 
 
 % There are 4 different colors
-color(c).
-color(d).
-color(h).
-color(s).
+color('♣').
+color('♦').
+color('♥').
+color('♠').
 
 % There are 13 different values
 value(14).

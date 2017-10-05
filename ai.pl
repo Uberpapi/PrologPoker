@@ -1,6 +1,7 @@
 :-module(ai, [ai_magic/1]).
 :-use_module(dealer).
 :-use_module(aiLogic).
+:-use_module(pokerrules).
 
 p1 :- player1(X), write(X).
 p2 :- player2(X), write(X).
@@ -49,7 +50,7 @@ ai_call :-
     ; length(Deck, 42), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river
     ; length(Deck, 40), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-    ( W == player, A \== 5 -> ai_magic(call) ; nl, write('Do you want to check, bet or fold?')),
+    ( W == player, A \== 5 -> ai_magic(check) ; nl, write('Do you want to check, bet or fold?')),
     nl.
 
 ai_bet :-
