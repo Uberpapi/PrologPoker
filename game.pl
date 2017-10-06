@@ -4,6 +4,7 @@
 :-use_module(pokerrules).
 :-use_module(ai).
 :-use_module(aiLogic).
+:-use_module(printtable).
 
 p1 :- player1(X), write(X).
 p2 :- player2(X), write(X).
@@ -39,8 +40,7 @@ go :-
   (B1 > B2 -> W = ai
   ; W = player),
   setPokertable([Y, Z, [B2,B1], W]),
-  write('Your hand is: '),
-  p1,
+  pt,
   nl,
   ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
 
@@ -62,7 +62,9 @@ check :-
     ; length(Deck, 42), Last_to_Act == player ->  nl, dealriver(Deck), write('River is: '), river, ai_magic(check)
     ; length(Deck, 40), Last_to_Act == player -> nl, player1Cards(X), player2Cards(Y), whoWon(X,Y)
     ; Last_to_Act == ai -> nl, ai_magic(check)
-    ), nl.
+    ),
+    pt,
+    nl.
 
 bet :-
   write('You bet!'),
@@ -74,6 +76,7 @@ bet :-
   Z is Pot + X,
   setPokertable([Y, Z, [B1, B2], ai]),
   ai_magic(bet),
+  pt,
   nl.
 
 raise :-
@@ -90,6 +93,7 @@ raise :-
   (length(Deck, 48) -> setPokertable([S, P, [B1, B2], ai])
   ; setPokertable([Y, Z, [B1, B2], ai])),
   ai_magic(raise),
+  pt,
   nl.
 
 call :-
@@ -109,12 +113,14 @@ call :-
     ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river
     ; length(Deck, 40) -> setPokertable([Y, Z, [B1, B2], W]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-  (  length(Deck, 40) -> ! 
+  (  length(Deck, 40) -> !
     ;  W == player, A \== 5 -> ai_magic(check)
     ; A \== 5 -> nl, write('Do you want to check, bet or fold?')
     ; !),
+    pt,
   nl.
 
 fold :-
+  pt,
   write('You lost'),
   nl.

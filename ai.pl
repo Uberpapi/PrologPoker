@@ -1,3 +1,4 @@
+
 :-module(ai, [ai_magic/1]).
 :-use_module(dealer).
 :-use_module(aiLogic).
