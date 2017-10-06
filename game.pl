@@ -40,6 +40,7 @@ go :-
   (B1 > B2 -> W = ai
   ; W = player),
   setPokertable([Y, Z, [B2,B1], W]),
+  (flop(X) -> retract(flop(_)), retract(turn(_)), retract(river(_)), fail ; !),
   pt,
   nl,
   ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
