@@ -51,7 +51,7 @@ ai_call :-
     ; length(Deck, 42), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W]), dealriver(Deck), write('River is: '), river
     ; length(Deck, 40), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-    (length(Deck, 40) -> ! ; W == player, A \== 5 -> ai_magic(check) ; nl, write('Do you want to check, bet or fold?')),
+    (length(Deck, 40) -> ! ; W == player, A \== 5 -> ai_magic(check) ; nl, write('Do you want to check, bet or fold?'),nl),
     nl.
 
 ai_bet :-

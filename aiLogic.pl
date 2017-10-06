@@ -7,20 +7,19 @@
 whatToDo(Y, PlayerAction, Answer):-
   player2(X),
   value_preflop(X, Value),
-  print(Value), nl, nl,
   NewValue is Value - Y * 50,
-  ( NewValue < 0, PlayerAction == pre -> Answer = ai_fold, print('1')
-  ; NewValue < 0, PlayerAction == raise -> Answer = ai_fold, print('2')
-  ; NewValue < 0, PlayerAction == bet -> Answer = ai_fold, print('3')
-  ; NewValue < 50, PlayerAction == check -> Answer = ai_check, print('4')
-  ; NewValue < 100, PlayerAction == pre -> Answer = ai_call, print('5')
-  ; NewValue < 100, PlayerAction == raise -> Answer = ai_call, print('6')
-  ; NewValue < 100, PlayerAction == bet -> Answer = ai_call, print('7')
-  ; PlayerAction == bet -> Answer = ai_raise, print('8')
-  ; PlayerAction == pre -> Answer = ai_raise, print('9')
-  ; PlayerAction == check -> Answer = ai_bet, print('10')
-  ; PlayerAction == raise -> Answer = ai_raise, print('11')
-  ; PlayerAction == call -> Answer = ai_check), nl.
+  ( NewValue < 0, PlayerAction == pre -> Answer = ai_fold
+  ; NewValue < 0, PlayerAction == raise -> Answer = ai_fold
+  ; NewValue < 0, PlayerAction == bet -> Answer = ai_fold
+  ; NewValue < 50, PlayerAction == check -> Answer = ai_check
+  ; NewValue < 100, PlayerAction == pre -> Answer = ai_call
+  ; NewValue < 100, PlayerAction == raise -> Answer = ai_call
+  ; NewValue < 100, PlayerAction == bet -> Answer = ai_call
+  ; PlayerAction == bet -> Answer = ai_raise
+  ; PlayerAction == pre -> Answer = ai_raise
+  ; PlayerAction == check -> Answer = ai_bet
+  ; PlayerAction == raise -> Answer = ai_raise
+  ; PlayerAction == call -> Answer = ai_check).
 
 
 /*Evaluates the hand pre_flop
