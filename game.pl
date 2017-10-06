@@ -19,8 +19,9 @@ echo :-
   echo.
 
 play :-
-  pt,
+
   setPokertable([1000, 0, [10,20], ai]),nl,
+  pt,
   write('Hello and welcome to this uber good poker game'), nl,
   write('You start with a stack of 1000'), nl,
   write('The different commands is "check", "bet", "call" or "fold"'), nl.
