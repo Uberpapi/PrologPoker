@@ -2,6 +2,8 @@
 :-use_module(dealer).
 :-use_module(library(random)).
 
+/*Determines how the AI acts based
+  on it's starting hand */
 whatToDo(Y, PlayerAction, Answer):-
   player2(X),
   value_preflop(X, Value),
@@ -56,6 +58,7 @@ absolut(2, 14, 1).
 between(X, Y, Z):-
   Y < X, X < Z.
 
+%Returns the max value of X and Y and returns in Z
 max(X, Y, Y):-
   X < Y, !.
 max(X, _, X).

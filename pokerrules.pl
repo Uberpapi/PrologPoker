@@ -54,6 +54,7 @@ winner(V1, V2, lost, _, _):-
 winner(V, V, X, FiveBest1, FiveBest2):-
   tie(FiveBest1,FiveBest2, X), !.
 
+%If there is a tie, we decide who wins here!!
 tie([], [], tie):- !.
 tie([V1|_], [V2|_], won):-
   V1 > V2,!.
@@ -180,14 +181,16 @@ reverse([], Res, Res).
 reverse([H|T], L2, Res):-
   reverse(T, [H|L2], Res).
 
-%Remove an element from a lists
-
+/*Remove an all occurences of Value from
+  a list and returning it in Res */
 remove([], _, []):- !.
 remove([card(_, Value)|T], Value, Res):-
   remove(T, Value, Res), !.
 remove([card(_, Wrong)|T], Value, [Wrong|Res]):-
   remove(T, Value, Res), !.
 
+/*Removes all occurences of Value1 and Value2 from
+  a list and returning the new list in Res */
 remove([],_, _, []):- !.
 remove([card(_, Value1)|T], Value1, Value2, Res):-
   remove(T, Value1,Value2, Res),!.

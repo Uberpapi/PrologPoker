@@ -2,8 +2,6 @@
 :-use_module(dealer).
 
 pt :-
-player1(P1),
-player2(P2),
 pokertable([Stack, Pot, [B1,B2], _]),
 Aistack is 2000-Stack,
 player1(P1),
