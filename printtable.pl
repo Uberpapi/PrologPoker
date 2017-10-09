@@ -8,7 +8,7 @@ valuetochar('A',14).
 
 %Print that takes in two inputs, Who did What.
 pt:-
-pokertable([Stack, Pot, [B1,B2], _]),
+pokertable([Stack, Pot, _, _, _]),
 Aistack is 2000-Stack-Pot,
 (player1(_) -> player1(XP1), fixvalue(XP1,[card(PC1,PV1), card(PC2,PV2)]); PC1='*', PV1='*', PC2='*', PV2 ='*'),
 (player2(_) -> player2(XP2), fixvalue(XP2,[card(AC1,AV1), card(AC2,AV2)]); AC1='*', AV1='*', AC2='*', AV2 ='*'),

@@ -25,15 +25,15 @@ check(L, FiveBest, V):-
   checkHand(Res, FiveBest, V),!.
 
 whoWon(Hand1, Hand2):-
-pokertable([Stack, Pot, _, _]),
+pokertable([Stack, Pot, _, _, _]),
 check(Hand1, FiveBest1, V1),
 check(Hand2, FiveBest2, V2),
 winner(V1,V2,Res, FiveBest1,FiveBest2),
 handValue(HV1, V1),
 handValue(HV2, V2),
-(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, _, _]), write('You win '), write(Pot), write('$'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
+(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, _, _, _]), write('You win '), write(Pot), write('$'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
 ; Res == lost -> write('You looose!'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2), nl
-; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, _, _]),write('Ooooh, both had same hand! You split'), write(Pot), write('$'), nl, write('Both got'), write(HV1), write('with the hand '), write(FiveBest1), nl, write('Its a tie!'), nl).
+; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, _, _, _]),write('Ooooh, both had same hand! You split'), write(Pot), write('$'), nl, write('Both got'), write(HV1), write('with the hand '), write(FiveBest1), nl, write('Its a tie!'), nl).
 
 %Checks for best first
 checkHand(L, FiveBest, V):-
@@ -201,7 +201,7 @@ remove([card(_, Value2)|T], Value1, Value2, Res):-
 remove([card(_, Wrong)|T], Value1, Value2, [Wrong|Res]):-
   remove(T, Value1, Value2, Res),!.
 
-/*Removes cards that occur with the same value 
+/*Removes cards that occur with the same value
   more than once, used to check for straight */
 doubleRemove([], []).
 doubleRemove([card(Color1, Value),card(_, Value)|T], L):-
