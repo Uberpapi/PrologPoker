@@ -102,13 +102,17 @@ value_preflop([card(Color1, V1),card(Color2, V2)], Y):-
   ; Y is Z + Humanfactor ).
 
 %Returns the absolut value Z from X - Y
+absolut(14, Y, Z):-
+  Y < 6,
+  absolut(1, Y, Z).
+absolut(X, 14, Z):-
+  X < 6,
+  absolut(X, 1, Z).
 absolut(X, Y, Z):-
   X < Y,
   Z is Y - X, !.
 absolut(X, Y, Z):-
   Z is X - Y.
-absolut(14, 2, 1).
-absolut(2, 14, 1).
 
 %True if X is between Y and Z
 between(X, Y, Z):-
