@@ -1,10 +1,13 @@
-:-module(aiLogic, [between/3, value_preflop/2, whatToDo/3]).
+:-module(aiLogic, [between/3, value_preflop/2, whatToDo_preFlop/3,
+                  whatToDo_Flop/3, whatToDo_Turn/3, whatToDo_River/3,
+                  chance_For_Straight/1, chance_For_Flush/1, chance/2]).
 :-use_module(dealer).
+:-use_module(pokerrules).
 :-use_module(library(random)).
 
 /*Determines how the AI acts based
   on it's starting hand */
-whatToDo(Y, PlayerAction, Answer):-
+whatToDo_preFlop(Y, PlayerAction, Answer):-
   player2(X),
   value_preflop(X, Value),
   NewValue is Value - Y * 50,
@@ -21,6 +24,60 @@ whatToDo(Y, PlayerAction, Answer):-
   ; PlayerAction == raise -> Answer = ai_raise
   ; PlayerAction == call -> Answer = ai_check).
 
+whatToDo_Flop(Y, PlayerAction, Answer) :-
+  player2([A,B]),
+  flop([C,D,E]),
+  Hand = [A,B,C,D,E],
+  chance(Hand, Result),
+  check(Hand, _, V),
+  (   PlayerAction == check, V < 8 -> Answer = ai_bet
+    ; PlayerAction == bet, V < 8 -> Answer = ai_raise
+    ; PlayerAction == raise, V < 8 -> Answer = ai_raise
+    ; PlayerAction == check, Result > 40 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 40 -> Answer = ai_raise
+    ; PlayerAction == raise, Result > 40 -> Answer = ai_call
+    ; PlayerAction == check, Result > 20 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 20 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 20 -> Answer = ai_call
+    ; PlayerAction == check, Result > 0 -> Answer = ai_check
+    ; PlayerAction == bet, Result > 0 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 0 -> Answer = ai_call
+    ; PlayerAction == check -> Answer = ai_check
+    ; PlayerAction == bet -> Answer = ai_fold
+    ; PlayerAction == raise -> Answer = ai_fold
+    ).
+
+%whatToDo_Turn(Y, PlayerAction, Answer) :-
+
+%  .
+
+%whatToDo_River(Y, PlayerAction, Answer) :-
+
+%  .
+
+chance(Hand, Value) :-
+  sortByNumber(Hand, Sorted),
+  sortByColor(Sorted, ColorSorted),
+  (   chance_For_Flush(ColorSorted, X), chance_For_Straight(Sorted, Y) ->  Value is X*Y+20
+    ; chance_For_Flush(ColorSorted, X) ->  Value is (X+5)*2
+    ; chance_For_Straight(Sorted, Y) -> Value is Y
+    ; Value is 0
+    ).
+
+
+chance_For_Flush([card(X, Y),card(X, _),card(X, _),card(X, _)|_], Y).
+chance_For_Flush([card(_,_)|R], Y) :-
+  chance_For_Flush(R, Y).
+
+
+chance_For_Straight([card(_,A),card(_,B),card(_,C),card(_,D)|_], A) :-
+  X is A - B + B - C + C - D,
+  (X == 3 ; X == 4).
+chance_For_Straight([card(C,14)|R], Y) :-
+  append(R, [card(C,1)], L),
+  chance_For_Straight(L, Y).
+chance_For_Straight([card(_,_)|R], Y) :-
+  chance_For_Straight(R, Y).
 
 /*Evaluates the hand pre_flop
   and returns a value which the bot
