@@ -15,11 +15,19 @@ river :- river(X), write(X).
 echo :-
   write('>> '),
   read(X),
-  call(X),
-  echo.
+  (X == end_of_file  -> nl, write('Exiting echo'),!
+  ;accepted_commands(X) -> call(X), echo
+  ;write('That is not a valid command'), nl, echo).
+
+accepted_commands(X) :-
+  (X == play; X== go; X == check; X == call; X == bet; X == raise).
 
 play :-
-
+  retractall(flop(_)),
+  retractall(turn(_)),
+  retractall(river(_)),
+  retractall(player1(_)),
+  retractall(player2(_)),
   setPokertable([1000, 0, [10,20], ai]),nl,
   pt,
   write('Hello and welcome to this uber good poker game'), nl,
@@ -31,24 +39,19 @@ go :-
   retractall(flop(_)),
   retractall(turn(_)),
   retractall(river(_)),
+  pokertable([Stack, _, [B1,B2], _]),% TROR DETTA FUNKAR, INTE TESTAT OBS OBS OBS OBS OBS
+  (Stack > 2000 -> write('Congratulation, you beat the AI!'), nl, write('If you want to play again write "play."')
+  ; Stack < 0 -> write('You lost! What the hell, the AI is not THAT good. '), nl, write('If you want to play again write "play."')
+  ; %if stack is 0 < stack < 2000 do the rest as usual - OBS OBS OBS OBS OBS
   createDeck(X),
   dealtp(X),
-  pokertable([Stack, _, [B1,B2], _]),
   Y is Stack - B2,
   Z is B1+B2,
   (B1 > B2 -> W = ai
   ; W = player),
   setPokertable([Y, Z, [B2,B1], W]),
   pt,
-  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
-
-test :-
-  play,
-  go,
-  check,
-  check,
-  check,
-  check.
+  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?'))).
 
 check :-
   deck(Deck),

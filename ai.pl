@@ -12,7 +12,12 @@ river :- river(X), write(X).
 playerstack :- listing(playerstack).
 
 ai_magic(Player_Act) :-
-  whatToDo(0, Player_Act, Answer),
+  deck(Deck),
+  (   length(Deck, 48) -> whatToDo_preFlop(0, Player_Act, Answer)
+    ; length(Deck, 44) -> whatToDo_Flop(0, Player_Act, Answer)
+    ; length(Deck, 42) -> whatToDo_Turn(0, Player_Act, Answer)
+    ; length(Deck, 40) -> whatToDo_River(0, Player_Act, Answer)
+    ),
   call(Answer).
 
 pre_flop :-
@@ -82,5 +87,10 @@ ai_raise :-
   nl.
 
 ai_fold :-
-  write('You won'),
+  pokertable([Stack, Pot, _, _]),
+  Newstack is Stack + Pot,
+  setPokertable([Newstack, _, _, _]),
+  write('AI Folds, you win'),
+  write(Pot),
+  write('$'),
   nl.
