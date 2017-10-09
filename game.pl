@@ -40,16 +40,9 @@ go :-
   retractall(turn(_)),
   retractall(river(_)),
   pokertable([Stack, _, [B1,B2], Last_to_Act, Handsplayed]),% Check if anyone have won the game
-  (Stack > 2000 -> format('Congratulation, you beat the AI in ~d hands!~nIf you want to play again write "play."', [Handsplayed])
-  ; Stack < 0 -> format('What the hell, you lost after ~d hands!~nThe AI is not THAT good.~nIf you want to play again write "play."', [Handsplayed])
-  ; %Or else do everything as usual
+ %Or else do everything as usual
   createDeck(X),
   dealtp(X),
-  (Last_to_Act == player ->
-    (Stack > B2 -> Y is Stack - B2, Z is B1+B2
-    ; Y is 0, Z is B1 + Stack) %If we cant afford the blind, take the whole stack as blind
-  ;(2000 - Stack > B1 -> Z is B1+B2
-    ; Y is Stack, Z is B1 + Stack))%If the AI cant afford the blind, take its whole stack as blind
 
   (B1 > B2 -> W = ai %Checks who starts to act
   ; W = player),
@@ -57,9 +50,16 @@ go :-
   IncBlind = Newhandsplayed mod 3,
   (IncBlind = 0 -> NewB2 = B2*2, NewB1 = B1*2 %When IncBlind is 0 we want to double the blinds
   ; NewB2 = B2, NewB1 = B1),
-  setPokertable([Y, Z, [B2,B1], W, Newhandsplayed]),
+
+  Aistack = 2000-Stack,
+  (Last_to_Act = player ->
+    (Stack > NewB2 -> Y is Stack-NewB2, Z = NewB1+NewB2
+    ; Y = 0, Z = NewB1 + Stack) %If we cant afford the blind, take the whole stack as blind
+  ; (Aistack > NewB1 ->  Y is Stack - NewB2, Z = NewB1+NewB2
+    ;Y is Stack, Z = NewB1 + Stack)),%If the AI cant afford the blind, take its whole stack as blind
+  setPokertable([Y, Z, [NewB2,NewB1], W, Newhandsplayed]),
   pt,
-  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?'))).
+  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
 
 check :-
   deck(Deck),
@@ -73,13 +73,13 @@ check :-
     pt.
 
 bet :-
-  write('You bet!'),
-  nl,
   pokertable([Stack, Pot, [B1,B2], _, _]),
+
   (B1 > B2 -> X = B1
   ; X = B2),
-  Y is Stack - X,
-  Z is Pot + X,
+  (Stack - X > 0 -> Y is Stack - X, Z is Pot + X, format('You bet ~d$!', [Y])
+  ;Y is 0, Z is Pot + Stack),
+  nl,
   setPokertable([Y, Z, [B1, B2], ai, _]),
   ai_magic(bet),
   pt.
@@ -105,13 +105,13 @@ call :-
   write('You call!'),
   nl,
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, _]),
-  (   B1 > B2 -> X = B1, W = player
+  (B1 > B2 -> X = B1, W = player
     ; X = B2, W = ai),
   Y is Stack - X,
   Z is Pot + X,
   S is Stack - X/2,
   P is Pot + X/2,
-  (   length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W, _]), dealflop(Deck), write('Flop is: '), flop
+  ( length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W, _]), dealflop(Deck), write('Flop is: '), flop
     ; length(Deck, 48), Last_to_Act == ai -> A = 5, setPokertable([S, P, [B1, B2], Last_to_Act, _]), ai_magic(check)
     ; length(Deck, 44) -> setPokertable([Y, Z, [B1, B2], W, _]), dealturn(Deck), write('Turn is: '), turn
     ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W, _]), dealriver(Deck), write('River is: '), river
@@ -124,5 +124,5 @@ call :-
   pt.
 
 fold :-
-  write('You lost'),
+  write('You lost the hand'),
   pt.
