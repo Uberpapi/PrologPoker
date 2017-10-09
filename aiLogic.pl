@@ -1,6 +1,6 @@
 :-module(aiLogic, [between/3, value_preflop/2, whatToDo_preFlop/3,
                   whatToDo_Flop/3, whatToDo_Turn/3, whatToDo_River/3,
-                  chance_For_Straight/1, chance_For_Flush/1, chance/2]).
+                  straight_Chance/1, flush_Chance/1, chance/2]).
 :-use_module(dealer).
 :-use_module(pokerrules).
 :-use_module(library(random)).
@@ -28,8 +28,12 @@ whatToDo_Flop(Y, PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   Hand = [A,B,C,D,E],
-  chance(Hand, Result),
-  check(Hand, _, V),
+  random(-5,10,Humanfactor),
+  chance(Hand, R),
+  check(Hand, X, V),
+  pairevaluator(X, Res),
+  Result is R + Res + Humanfactor,
+  write(Result), nl,
   (   PlayerAction == check, V < 8 -> Answer = ai_bet
     ; PlayerAction == bet, V < 8 -> Answer = ai_raise
     ; PlayerAction == raise, V < 8 -> Answer = ai_raise
@@ -47,37 +51,115 @@ whatToDo_Flop(Y, PlayerAction, Answer) :-
     ; PlayerAction == raise -> Answer = ai_fold
     ).
 
-%whatToDo_Turn(Y, PlayerAction, Answer) :-
-
+whatToDo_Turn(Y, PlayerAction, Answer) :-
+  player2([A,B]),
+  flop([C,D,E]),
+  turn([F]),
+  Hand = [A,B,C,D,E,F],
+  random(-5,10,Humanfactor),
+  chance(Hand, R),
+  check(Hand, X, V),
+  pairevaluator(X, Res),
+  Result is R + Res + Humanfactor,
+  write(Result), nl,
+  (   PlayerAction == check, V < 7 -> Answer = ai_bet
+    ; PlayerAction == bet, V < 7 -> Answer = ai_raise
+    ; PlayerAction == raise, V < 7 -> Answer = ai_raise
+    ; PlayerAction == check, Result > 115 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 115 -> Answer = ai_raise
+    ; PlayerAction == raise, Result > 115 -> Answer = ai_call
+    ; PlayerAction == check, Result > 50 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 50 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 50 -> Answer = ai_call
+    ; PlayerAction == check, Result > 15 -> Answer = ai_check
+    ; PlayerAction == bet, Result > 15 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 15 -> Answer = ai_call
+    ; PlayerAction == check -> Answer = ai_check
+    ; PlayerAction == bet -> Answer = ai_fold
+    ; PlayerAction == raise -> Answer = ai_fold
+    ).
 %  .
 
-%whatToDo_River(Y, PlayerAction, Answer) :-
+whatToDo_River(Y, PlayerAction, Answer) :-
+  player2([A,B]),
+  flop([C,D,E]),
+  turn([F]),
+  river([G]),
+  Hand = [A,B,C,D,E,F,G],
+  random(-5,10,Humanfactor),
+  check(Hand, X, V),
+  pairevaluator(X, Res),
+  Result is Res + Humanfactor,
+  write(Result), nl,
+  (   PlayerAction == check, V < 7 -> Answer = ai_bet
+    ; PlayerAction == bet, V < 7 -> Answer = ai_raise
+    ; PlayerAction == raise, V < 7 -> Answer = ai_raise
+    ; PlayerAction == check, Result > 115 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 115 -> Answer = ai_raise
+    ; PlayerAction == raise, Result > 115 -> Answer = ai_call
+    ; PlayerAction == check, Result > 50 -> Answer = ai_bet
+    ; PlayerAction == bet, Result > 50 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 50 -> Answer = ai_call
+    ; PlayerAction == check, Result > 15 -> Answer = ai_check
+    ; PlayerAction == bet, Result > 15 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 15 -> Answer = ai_call
+    ; PlayerAction == check -> Answer = ai_check
+    ; PlayerAction == bet -> Answer = ai_fold
+    ; PlayerAction == raise -> Answer = ai_fold
+    ).
 
-%  .
+
+%Evaluates two pair
+pairevaluator([V1,V1,V3,V3,V5], Result):-
+  player2([card(C1, A),card(C2, B)]),
+  (   V1 == A, V1 == B -> Result is V1 * V1 * 2
+    ; V3 == A, V3 == B -> Result is V3 * V3
+    ; V1 == A ; V1 == B -> Result is V1 * V1 * 1.5
+    ; V3 == A ; V3 == B -> Result is V3 * V3 * 0.5
+    ; (V1 == A, V3 == B ; V3 == A, V1 == B) -> Result is V1 * V3 * 2.5
+    ; (V5 == A ; V5 == B), V5 > 11 -> Result is V5
+    ; Result is 0
+    ), !.
+
+%Evaluates single pair
+pairevaluator([V1,V1,V3,V4,V5], Result):-
+  player2([card(C1, A),card(C2, B)]),
+  (   V1 == A, V1 == B -> Result is V1*2            %pocketpair
+    ; (V1 == A; V1 == B) -> Result is V1            %pair with 1 card in hand
+    ; (A > 11 ; B > 11) -> Result is 5              %pair on table high kicker on hand
+    ; Result is 0                                   %else
+  ), !.
+
+%evaluates highest card
+pairevaluator(L, Result):-
+  player2([card(C1, A),card(C2, B)]),
+  (   (A > 11 ; B > 11) -> Result is 3
+    ; Result is 0
+    ).
 
 chance(Hand, Value) :-
   sortByNumber(Hand, Sorted),
   sortByColor(Sorted, ColorSorted),
-  (   chance_For_Flush(ColorSorted, X), chance_For_Straight(Sorted, Y) ->  Value is X*Y+20
-    ; chance_For_Flush(ColorSorted, X) ->  Value is (X+5)*2
-    ; chance_For_Straight(Sorted, Y) -> Value is Y
+  (   flush_Chance(ColorSorted, X), straight_Chance(Sorted, Y) ->  Value is X*Y+20
+    ; flush_Chance(ColorSorted, X) ->  Value is (X+5)*2
+    ; straight_Chance(Sorted, Y) -> Value is Y
     ; Value is 0
     ).
 
 
-chance_For_Flush([card(X, Y),card(X, _),card(X, _),card(X, _)|_], Y).
-chance_For_Flush([card(_,_)|R], Y) :-
-  chance_For_Flush(R, Y).
+flush_Chance([card(X, Y),card(X, _),card(X, _),card(X, _)|_], Y).
+flush_Chance([card(_,_)|R], Y) :-
+  flush_Chance(R, Y).
 
 
-chance_For_Straight([card(_,A),card(_,B),card(_,C),card(_,D)|_], A) :-
+straight_Chance([card(_,A),card(_,B),card(_,C),card(_,D)|_], A) :-
   X is A - B + B - C + C - D,
   (X == 3 ; X == 4).
-chance_For_Straight([card(C,14)|R], Y) :-
+straight_Chance([card(C,14)|R], Y) :-
   append(R, [card(C,1)], L),
-  chance_For_Straight(L, Y).
-chance_For_Straight([card(_,_)|R], Y) :-
-  chance_For_Straight(R, Y).
+  straight_Chance(L, Y).
+straight_Chance([card(_,_)|R], Y) :-
+  straight_Chance(R, Y).
 
 /*Evaluates the hand pre_flop
   and returns a value which the bot
