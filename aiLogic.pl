@@ -83,13 +83,13 @@ chance_For_Straight([card(_,_)|R], Y) :-
   and returns a value which the bot
   bases it's first decision on */
 value_preflop([card(_, X),card(_, X)], Y):-
-  pokertable([_, _, _, Last_to_Act]),
+  pokertable([_, _, _, Last_to_Act, _]),
   random(-75, 75, Humanfactor),
  (  Last_to_Act == ai -> Y is X*30 + 40 + Humanfactor
   ;  Y is X * 30 + Humanfactor ).
 
 value_preflop([card(Color1, V1),card(Color2, V2)], Y):-
-  pokertable([_, _, _, Last_to_Act]),
+  pokertable([_, _, _, Last_to_Act, _]),
   absolut(V1, V2, Res), StraightChanceBonus is 20 - Res * Res,
   HandValue is V1 * V2,
   max(V1, V2, Hi), HighCardBonus is Hi * 2,
