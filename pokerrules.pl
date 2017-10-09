@@ -3,7 +3,8 @@
                     straight_flush/4 , four_of_a_kind/3,
                     full_house/3, flush/3, straight/3,
                     three_of_a_kind/3, two_pair/3, whoWon/2,
-                    pair/3, highest_card/3, reverse/2, remove/3, nothing/3]).
+                    pair/3, highest_card/3, reverse/2, remove/3,
+                    nothing/3, doubleRemove/2]).
 :-use_module(dealer).
 
 /*Defining the value of the hand, the
@@ -40,7 +41,7 @@ sortByColor(L, Res), straight_flush(Res, FiveBest, [] ,V), !;
 four_of_a_kind(L, V1, V), remove(L, V1, [V5|_]), FiveBest = [V1,V1,V1,V1,V5], !;
 full_house(L, FiveBest, V), !;
 sortByColor(L, Res),flush(Res, FiveBest, V), !;
-straight(L, FiveBest, V, _), !;
+doubleRemove(L, Res), straight(Res, FiveBest, V, _), !;
 three_of_a_kind(L, V1, V), remove(L, V1, [V4,V5|_]), FiveBest = [V1,V1,V1,V4,V5], !;
 two_pair(L, [V1, V2], V), remove(L, V1, V2, [V5|Res]), FiveBest = [V1,V1,V2,V2,V5], !;
 pair(L, V1, V), remove(L, V1, [V3,V4,V5|_]), FiveBest = [V1, V1, V3, V4, V5], !;
@@ -199,3 +200,11 @@ remove([card(_, Value2)|T], Value1, Value2, Res):-
     remove(T, Value1,Value2, Res),!.
 remove([card(_, Wrong)|T], Value1, Value2, [Wrong|Res]):-
   remove(T, Value1, Value2, Res),!.
+
+/*Removes cards that occur with the same value 
+  more than once, used to check for straight */
+doubleRemove([], []).
+doubleRemove([card(Color1, Value),card(_, Value)|T], L):-
+  !, doubleRemove([card(Color1, Value)|T], L).
+doubleRemove([card(Color, Value)|T], [card(Color, Value)|L]):-
+  doubleRemove(T, L).
