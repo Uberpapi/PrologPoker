@@ -20,7 +20,7 @@ echo :-
   ;format('~w is not a valid command.~nThe valid commands are:~nplay - Restart the game~ngo   - Deals a new hand~nAnd all the poker actions~n', [X]), echo).
 
 accepted_commands(X) :-
-  (X == play; X== go; X == check; X == call; X == bet; X == raise).
+  (X == play; X== go; X == check; X == call; X == bet; X == raise; X == fold).
 
 play :-
   retractall(flop(_)),
@@ -48,18 +48,18 @@ go :-
   ; W = player),
   Newhandsplayed = Handsplayed + 1,
   IncBlind = Newhandsplayed mod 3,
-  (IncBlind = 0 -> NewB2 = B2*2, NewB1 = B1*2 %When IncBlind is 0 we want to double the blinds
-  ; NewB2 = B2, NewB1 = B1),
+  (IncBlind = 0 -> NewB2 is B2*2, NewB1 is B1*2 %When IncBlind is 0 we want to double the blinds
+  ; NewB2 is B2, NewB1 is B1),
 
-  Aistack = 2000-Stack,
+  Aistack is 2000-Stack,
   (Last_to_Act = player ->
-    (Stack > NewB2 -> Y is Stack-NewB2, Z = NewB1+NewB2
+    (Stack > NewB2 -> Y is Stack-NewB2, Z is NewB1+NewB2
     ; Y = 0, Z = NewB1 + Stack) %If we cant afford the blind, take the whole stack as blind
-  ; (Aistack > NewB1 ->  Y is Stack - NewB2, Z = NewB1+NewB2
-    ;Y is Stack, Z = NewB1 + Stack)),%If the AI cant afford the blind, take its whole stack as blind
+  ; (Aistack > NewB1 ->  Y is Stack - NewB2, Z is NewB1+NewB2
+    ;Y is Stack, Z is NewB1 + Stack)),%If the AI cant afford the blind, take its whole stack as blind
   setPokertable([Y, Z, [NewB2,NewB1], W, Newhandsplayed]),
   pt,
-  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?')).
+  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?'), nl).
 
 check :-
   deck(Deck),
@@ -77,7 +77,7 @@ bet :-
 
   (B1 > B2 -> X = B1
   ; X = B2),
-  (Stack - X > 0 -> Y is Stack - X, Z is Pot + X, format('You bet ~d$!', [Y])
+  (Stack - X > 0 -> Y is Stack - X, Z is Pot + X, format('You bet ~d$!', [X])
   ;Y is 0, Z is Pot + Stack),
   nl,
   setPokertable([Y, Z, [B1, B2], ai, _]),
@@ -125,4 +125,5 @@ call :-
 
 fold :-
   write('You lost the hand'),
+  nl,
   pt.
