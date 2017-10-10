@@ -46,7 +46,7 @@ ai_call :-
   deck(Deck),
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, Handsplayed]),
   (B1 > B2 -> X = B1, Smallblind = B2, W = player
-  ; X = B2, Smallblind = B2, W = ai),
+  ; X = B2, Smallblind = B1, W = ai),
   Y is Stack - X,
   Z is Pot + X,
   P is Pot + Smallblind,
