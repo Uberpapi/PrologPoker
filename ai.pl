@@ -50,41 +50,41 @@ ai_call :-
   Y is Stack - X,
   Z is Pot + X,
   P is Pot + Smallblind,
-  (   length(Deck, 48), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
-    ; length(Deck, 48), Last_to_Act == player -> A = 5, setPokertable([Stack, P, [B1, B2], Last_to_Act, Handsplayed])
-    ; length(Deck, 44), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
-    ; length(Deck, 42), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
-    ; length(Deck, 40), Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
+  length(Deck, Cardsleft),
+  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
+    ; Cardsleft == 48, Last_to_Act == player -> setPokertable([Stack, P, [B1, B2], Last_to_Act, Handsplayed])
+    ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
+    ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
+    ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
-    (length(Deck, 40) -> ! ; W == player, A \== 5 -> ai_magic(check) ; nl, write('Do you want to check, bet or fold?'),nl),
+  (   Cardsleft == 40 -> !
+    ; Cardsleft \== 48, W == player -> ai_magic(check)
+    ; nl, write('Do you want to check, bet or fold?'), nl),
     nl.
 
 ai_bet :-
-  nl,
-  write('AI bet!'),
-  nl,
   pokertable([Stack, Pot, [B1,B2], _, Handsplayed]),
   (B1 > B2 -> X = B1
   ; X = B2),
-  Z is Pot + X,
-  setPokertable([Stack, Z, [B1, B2], player, Handsplayed]),
-  write('Do you want to call, raise or fold?'),
-  nl.
+  Y is 2000-(Stack+Pot),
+  ( Y < X -> Z is Pot+Y+Y, setPokertable([Stack, Z, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called!~n', [Y]), allin
+    ; Z is Pot + X, setPokertable([Stack, Z, [B1, B2], player, Handsplayed]), format('~nAI bet!~nDo you want to call, raise or fold?~n', [])
+  ).
 
 ai_raise :-
-  deck(Deck),
-  nl,
-  write('AI raise!'),
-  nl,
   pokertable([Stack, Pot, [B1,B2], _, Handsplayed]),
-  (B1 > B2 -> X = B1
-  ; X = B2),
-  Z is Pot + X*2,
-  P is Pot + X*1.5,
-  (length(Deck, 48) -> setPokertable([Stack, P, [B1, B2], player, Handsplayed])
-  ; setPokertable([Stack, Z, [B1, B2], player, Handsplayed])),
-  write('Do you want to call, raise or fold?'),
-  nl.
+  (B1 > B2 -> X = B1, Smallblind = B2
+  ; X = B2, Smallblind = B1),
+  Y is 2000-(Stack+Pot),
+  Raise is Y - Smallblind,
+  S is Stack - Raise,
+  PrePot is B1+B2,
+  Pre is X+X,
+  (   Pot == PrePot, Y =< PrePot -> P is Pot+Y+Raise, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
+    ; Pot == PrePot, Y >= Pre -> P is Pot+X+Smallblind, setPokertable([Stack, P, [B1, B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+    ; Y =< Pre -> P is Pot+Y+Y-X, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
+    ; P is Pot + X*2, setPokertable([Stack, P, [B1,B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+  ).
 
 ai_fold :-
   pokertable([Stack, Pot, B1, B2, Handsplayed]),
