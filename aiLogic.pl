@@ -68,9 +68,9 @@ whatToDo_Turn(_, PlayerAction, Answer) :-
     ; PlayerAction == check, Result > 50 -> Answer = ai_bet
     ; PlayerAction == bet, Result > 50 -> Answer = ai_call
     ; PlayerAction == raise, Result > 50 -> Answer = ai_call
-    ; PlayerAction == check, Result > 15 -> Answer = ai_check
-    ; PlayerAction == bet, Result > 15 -> Answer = ai_call
-    ; PlayerAction == raise, Result > 15 -> Answer = ai_call
+    ; PlayerAction == check, Result > 10 -> Answer = ai_check
+    ; PlayerAction == bet, Result > 10 -> Answer = ai_call
+    ; PlayerAction == raise, Result > 10 -> Answer = ai_call
     ; PlayerAction == check -> Answer = ai_check
     ; PlayerAction == bet -> Answer = ai_fold
     ; PlayerAction == raise -> Answer = ai_fold

@@ -118,6 +118,6 @@ allin :-
   whoWon(P1,P2).
 
 fold :-
-  write('You lost the hand'),
-  nl,
-  pt.
+  write('You lost the hand'), nl,
+  pt, nl,
+  write('Write go to deal the next hand'), nl.

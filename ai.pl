@@ -3,6 +3,7 @@
 :-use_module(dealer).
 :-use_module(aiLogic).
 :-use_module(pokerrules).
+:-use_module(game).
 
 p1 :- player1(X), write(X).
 p2 :- player2(X), write(X).
@@ -19,11 +20,6 @@ ai_magic(Player_Act) :-
     ; length(Deck, 40) -> whatToDo_River(0, Player_Act, Answer)
     ),
   call(Answer).
-
-pre_flop :-
-  pokertable([_, _, _, Last_to_Act ,_]),
-  (   Last_to_Act == player -> ai_call
-    ; nl, write('Do you want to call, raise or fold?')), nl.
 
 ai_check :-
   deck(Deck),
