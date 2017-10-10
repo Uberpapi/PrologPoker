@@ -7,10 +7,9 @@
 
 /*Determines how the AI acts based
   on it's starting hand */
-whatToDo_preFlop(Y, PlayerAction, Answer):-
+whatToDo_preFlop(_, PlayerAction, Answer):-
   player2(X),
-  value_preflop(X, Value),
-  NewValue is Value - Y * 50,
+  value_preflop(X, NewValue),
   ( NewValue < 0, PlayerAction == pre -> Answer = ai_fold
   ; NewValue < 0, PlayerAction == raise -> Answer = ai_fold
   ; NewValue < 0, PlayerAction == bet -> Answer = ai_fold
@@ -24,7 +23,7 @@ whatToDo_preFlop(Y, PlayerAction, Answer):-
   ; PlayerAction == raise -> Answer = ai_raise
   ; PlayerAction == call -> Answer = ai_check).
 
-whatToDo_Flop(Y, PlayerAction, Answer) :-
+whatToDo_Flop(_, PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   Hand = [A,B,C,D,E],
@@ -51,36 +50,7 @@ whatToDo_Flop(Y, PlayerAction, Answer) :-
     ; PlayerAction == raise -> Answer = ai_fold
     ).
 
-whatToDo_Turn(Y, PlayerAction, Answer) :-
-  player2([A,B]),
-  flop([C,D,E]),
-  turn([F]),
-  Hand = [A,B,C,D,E,F],
-  random(-5,10,Humanfactor),
-  chance(Hand, R),
-  check(Hand, X, V),
-  pairevaluator(X, Res),
-  Result is R + Res + Humanfactor,
-  write(Result), nl,
-  (   PlayerAction == check, V < 7 -> Answer = ai_bet
-    ; PlayerAction == bet, V < 7 -> Answer = ai_raise
-    ; PlayerAction == raise, V < 7 -> Answer = ai_raise
-    ; PlayerAction == check, Result > 115 -> Answer = ai_bet
-    ; PlayerAction == bet, Result > 115 -> Answer = ai_raise
-    ; PlayerAction == raise, Result > 115 -> Answer = ai_call
-    ; PlayerAction == check, Result > 50 -> Answer = ai_bet
-    ; PlayerAction == bet, Result > 50 -> Answer = ai_call
-    ; PlayerAction == raise, Result > 50 -> Answer = ai_call
-    ; PlayerAction == check, Result > 15 -> Answer = ai_check
-    ; PlayerAction == bet, Result > 15 -> Answer = ai_call
-    ; PlayerAction == raise, Result > 15 -> Answer = ai_call
-    ; PlayerAction == check -> Answer = ai_check
-    ; PlayerAction == bet -> Answer = ai_fold
-    ; PlayerAction == raise -> Answer = ai_fold
-    ).
-%  .
-
-whatToDo_River(Y, PlayerAction, Answer) :-
+whatToDo_Turn(_, PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   turn([F]),
@@ -109,11 +79,67 @@ whatToDo_River(Y, PlayerAction, Answer) :-
     ).
 
 
+%  .
+
+whatToDo_River(_, PlayerAction, Answer) :-
+    player2([A,B]),
+    flop([C,D,E]),
+    turn([F]),
+    river([G]),
+    random(0,25,Humanfactor),
+    OurHand = [A,B,C,D,E,F,G],
+    SharedHand = [C,D,E,F,G],
+    check(SharedHand, FiveBest1, HV1),  % We check if our best hand of a total 5 cards is only by using the 5 shared
+    check(OurHand, FiveBest2, HV2),     % cards or in combination with our own hand consisting of 7 cards
+    pairevaluator(FiveBest, R),
+    chance(SharedHand, SharedChance),
+    Result is R - (SharedChance * 2) + Humanfactor,
+    (   PlayerAction == check, HV1 \== HV2,  HV2 < 6 -> Answer = ai_bet %Cases where our hand is stronger than the shared hand
+      ; PlayerAction == bet, HV1 \== HV2, HV2 < 6 -> Answer = ai_raise  %and our hand is consisting of a straight or better
+      ; PlayerAction == raise, HV1 \== HV2, HV2 < 6 -> Answer = ai_raise
+      ; PlayerAction == check, FiveBest1 \== FiveBest2,  HV2 < 6 -> Answer = ai_bet %Cases where our hand is the same as the shared, like
+      ; PlayerAction == bet, FiveBest1 \== FiveBest2, HV2 < 6 -> Answer = ai_raise  %a straight for example but we have a higher straight
+      ; PlayerAction == raise, FiveBest1 \== FiveBest2, HV2 < 6 -> Answer = ai_raise
+      ; PlayerAction == check,  HV1 < 5 -> Answer = ai_bet %Cases where the shared hand is a flush or better
+      ; PlayerAction == bet, HV1 < 5 -> Answer = ai_raise
+      ; PlayerAction == raise, HV1 < 5 -> Answer = ai_call
+      ; PlayerAction == check,  HV1 == 5, Humanfactor < 15 -> Answer = ai_bet %Cases where we have a shared straight
+      ; PlayerAction == bet, HV1 == 5, Humanfactor < 15 -> Answer = ai_raise  %and we want to have a bluff variable
+      ; PlayerAction == raise, HV1 == 5, Humanfactor < 15 -> Answer = ai_call
+      ; PlayerAction == check,  HV1 == 5 -> Answer = ai_check %Also cases where it acts upon a shared straight
+      ; PlayerAction == bet, HV1 == 5 -> Answer = ai_call     %but the Humanfactor is below 15 (out of 25)
+      ; PlayerAction == raise, HV1 == 5 -> Answer = ai_fold
+      ; PlayerAction == check,  Result > 115 -> Answer = ai_bet %The rest of the cases are based upon
+      ; PlayerAction == bet, Result > 115 -> Answer = ai_raise  %if we have three of a kind or lower
+      ; PlayerAction == raise, Result > 115 -> Answer = ai_call
+      ; PlayerAction == check, Result > 50 -> Answer = ai_bet
+      ; PlayerAction == bet, Result > 50 -> Answer = ai_call
+      ; PlayerAction == raise, Result > 50 -> Answer = ai_call
+      ; PlayerAction == check, Result > 15 -> Answer = ai_check
+      ; PlayerAction == bet, Result > 15 -> Answer = ai_call
+      ; PlayerAction == raise, Result > 15 -> Answer = ai_call
+      ; PlayerAction == check -> Answer = ai_check
+      ; PlayerAction == bet -> Answer = ai_fold
+      ; PlayerAction == raise -> Answer = ai_fold
+      ).
+
+
+%Evaluates three of a kind
+pairevaluator([V1,V1,V1,V4,V5], Result):-
+  player2([card(_,A),card(_,B)]),
+  max(A, B, C),
+  ( V1 == A, V1 == B -> Result is 200    %Three of a kind with pocketpair
+  ; (V1 == A ; V1 == B) -> Result is V1*V1 + 50   %Three of a kind with a card from our hand
+  ; (V4 == C ; V5 == C), C > 11 -> Result is C*2  %Shared three of a kind but having a high kicker
+  ; Result is 0
+  ), !.
+
+
 %Evaluates two pair
 pairevaluator([V1,V1,V3,V3,V5], Result):-
-  player2([card(C1, A),card(C2, B)]),
+  player2([card(_, A),card(_, B)]),
   (   V1 == A, V1 == B -> Result is V1 * V1 * 2
-    ; V3 == A, V3 == B -> Result is V3 * V3
+    ; V3 == A, V3 == B -> Result is V3 * V3 + 70
     ; V1 == A ; V1 == B -> Result is V1 * V1 * 1.5
     ; V3 == A ; V3 == B -> Result is V3 * V3 * 0.5
     ; (V1 == A, V3 == B ; V3 == A, V1 == B) -> Result is V1 * V3 * 2.5
@@ -122,16 +148,16 @@ pairevaluator([V1,V1,V3,V3,V5], Result):-
     ), !.
 
 %Evaluates single pair
-pairevaluator([V1,V1,V3,V4,V5], Result):-
-  player2([card(C1, A),card(C2, B)]),
-  (   V1 == A, V1 == B -> Result is V1*2            %pocketpair
-    ; (V1 == A; V1 == B) -> Result is V1            %pair with 1 card in hand
-    ; (A > 11 ; B > 11) -> Result is 5              %pair on table high kicker on hand
-    ; Result is 0                                   %else
+pairevaluator([V1,V1,_,_,V5], Result):-
+  player2([card(_, A),card(_, B)]),
+  (   V1 == A, V1 == B -> Result is V1*2              %pocketpair
+    ; (V1 == A; V1 == B), V1 > V5 -> Result is V1 + 5 %pair with 1 card in hand
+    ; (A > 11 ; B > 11) -> Result is 5                %pair on table high kicker on hand
+    ; Result is 0                                     %else
   ), !.
 
 %evaluates highest card
-pairevaluator(L, Result):-
+pairevaluator(_, Result):-
   player2([card(C1, A),card(C2, B)]),
   (   (A > 11 ; B > 11) -> Result is 3
     ; Result is 0
@@ -142,7 +168,7 @@ chance(Hand, Value) :-
   sortByColor(Sorted, ColorSorted),
   (   flush_Chance(ColorSorted, X), straight_Chance(Sorted, Y) ->  Value is X*Y+20
     ; flush_Chance(ColorSorted, X) ->  Value is (X+5)*2
-    ; straight_Chance(Sorted, Y) -> Value is Y
+    ; straight_Chance(Sorted, Y) -> Value is Y+5
     ; Value is 0
     ).
 
@@ -195,10 +221,6 @@ absolut(X, Y, Z):-
   Z is Y - X, !.
 absolut(X, Y, Z):-
   Z is X - Y.
-
-%True if X is between Y and Z
-between(X, Y, Z):-
-  Y < X, X < Z.
 
 %Returns the max value of X and Y and returns in Z
 max(X, Y, Y):-
