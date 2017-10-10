@@ -1,5 +1,5 @@
 
-:-module(game,[echo/0, go/0]).
+:-module(game,[echo/0, go/0, allin/0]).
 :-use_module(dealer).
 :-use_module(pokerrules).
 :-use_module(ai).
@@ -74,7 +74,6 @@ check :-
 
 bet :-
   pokertable([Stack, Pot, [B1,B2], _, Handsplayed]),
-
   (B1 > B2 -> X = B1
   ; X = B2),
   (Stack - X > 0 -> Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You bet ~d$!', [X]), ai_magic(bet)
@@ -85,42 +84,28 @@ bet :-
 
 raise :-
   deck(Deck),
-  write('You raise!'),
-  nl,
   pokertable([Stack, Pot, [B1,B2], _, Handsplayed]),
   ( B1 > B2 -> X = B1
     ; X = B2),
-  Y is Stack - X*2,
-  Z is Pot + X*2,
-  S is Stack - X*1.5,
-  P is Pot + X*1.5,
-  (length(Deck, 48) -> setPokertable([S, P, [B1, B2], ai, Handsplayed])
-  ; setPokertable([Y, Z, [B1, B2], ai, Handsplayed])),
-  ai_magic(raise),
-  pt.
+  (Stack - X > 0, length(Deck, 48)-> S is Stack - X*1.5, P is Pot + X*1.5, setPokertable([S, P, [B1, B2], ai, Handsplayed]), pt
+  ; Stack - X > 0 -> Y is Stack - X*2, Z is Pot + X*2, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You raise ~d$!', [X]), pt, ai_magic(raise)
+  ; Y is 0, Z is Pot + Stack + Stack, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You dont have sufficient stack, so you went allin!~nThe AI called!~n', []), allin).
 
 call :-
   deck(Deck),
-  write('You call!'),
-  nl,
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, Handsplayed]),
   (B1 > B2 -> X = B1, W = player
     ; X = B2, W = ai),
-  Y is Stack - X,
-  Z is Pot + X,
-  S is Stack - X/2,
-  P is Pot + X/2,
-  ( length(Deck, 48), Last_to_Act == player -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
-    ; length(Deck, 48), Last_to_Act == ai -> A = 5, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check)
-    ; length(Deck, 44) -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
-    ; length(Deck, 42) -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
-    ; length(Deck, 40) -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
-    ),
+  (   Stack - X < 0 -> Y is 0, Z is Pot + Stack + Stack, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You dont have sufficient stack, so you went allin!~nThe AI called!~n', []), allin
+    ; length(Deck, 48), Last_to_Act == player -> write('You call!'), Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop,pt
+    ; length(Deck, 48), Last_to_Act == ai -> write('You call!'), A = 5, S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check)
+    ; length(Deck, 44) -> write('You call!'), Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn,pt
+    ; length(Deck, 42) -> write('You call!'), Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river,pt
+    ; length(Deck, 40) -> write('You call!'), Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2),pt),
   (  length(Deck, 40) -> !
-    ;  W == player, A \== 5 -> ai_magic(check)
-    ; A \== 5 -> nl, write('Do you want to check, bet or fold?')
-    ; !),
-  pt.
+    ;  W == player, A \== 5, Stack - X > 0 -> ai_magic(check)
+    ; A \== 5, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?')
+    ; !).
 
 allin :-
   deck(Deck),

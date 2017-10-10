@@ -25,18 +25,17 @@ check(L, FiveBest, V):-
   checkHand(Res, FiveBest, V),!.
 
 whoWon(Hand1, Hand2):-
-pokertable([Stack, Pot, _, _, Handsplayed]),
+pokertable([Stack, Pot, B1, B2, Handsplayed]),
 check(Hand1, FiveBest1, V1),
 check(Hand2, FiveBest2, V2),
 winner(V1,V2,Res, FiveBest1,FiveBest2),
 handValue(HV1, V1),
 handValue(HV2, V2),
-(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, _, _, Handsplayed]), write('You win '), write(Pot), write('$'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
-; Res == lost -> Newstack is Stack, write('You looose!'),nl, write('You got ') , write(HV1), write('with the hand '), write(FiveBest1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2), nl
-; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, _, _, Handsplayed]),write('Ooooh, both had same hand! You split'), write(Pot), write('$'), nl, write('Both got'), write(HV1), write('with the hand '), write(FiveBest1), nl, write('Its a tie!'), nl),
-write(Handsplayed),
+(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, B1, B2, Handsplayed]), write('You win '), write(Pot), write('$'),nl, write('You got '), write(HV1), nl, write('The AI got '), write(HV2), write('with the hand '), write(FiveBest2)
+; Res == lost -> Newstack is Stack, write('You looose!'),nl, write('You got ') , write(HV1), nl, write('The AI got '), write(HV2), nl
+; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, B1, B2, Handsplayed]),write('Ooooh, both had same hand! You split '), write(Pot), write('$'), nl, write('Both got '), write(HV1), nl, write('Its a tie!'), nl),
 (Newstack > 1999 -> format('~nCongratulation, you beat the AI in ~w hands!~nIf you want to play again write "play."', [Handsplayed])
-; Newstack < 1 -> format('~nWhat the hell, you lost after ~w hands!~nThe AI is not THAT good.~nIf you want to play again write "play."', [Handsplayed])
+; Newstack < 1 -> format('~nWhat the hell, you lost after ~w hands!~nThe AI is not THAT good.~n~nIf you want to play again write "play."', [Handsplayed])
 ;!).
 
 %Checks for best first
