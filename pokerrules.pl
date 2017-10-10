@@ -1,6 +1,6 @@
 :-module(pokerrules,[check/3, checkHand/3, handValue/1,
                     sortByNumber/2, sortByColor/2,
-                    straight_flush/4 , four_of_a_kind/3,
+                    straight_flush/3 , four_of_a_kind/3,
                     full_house/3, flush/3, straight/3,
                     three_of_a_kind/3, two_pair/3, whoWon/2,
                     pair/3, highest_card/3, reverse/2, remove/3,
@@ -39,11 +39,11 @@ handValue(HV2, V2),
 
 %Checks for best first
 checkHand(L, FiveBest, V):-
-sortByColor(L, Res), straight_flush(Res, FiveBest, [] ,V), !;
+sortByColor(L, Res), straight_flush(Res, FiveBest, V), !;
 four_of_a_kind(L, V1, V), remove(L, V1, [V5|_]), FiveBest = [V1,V1,V1,V1,V5], !;
 full_house(L, FiveBest, V), !;
 sortByColor(L, Res),flush(Res, FiveBest, V), !;
-doubleRemove(L, Res), straight(Res, FiveBest, V, _), !;
+doubleRemove(L, Res), straight(Res, FiveBest, V), !;
 three_of_a_kind(L, V1, V), remove(L, V1, [V4,V5|_]), FiveBest = [V1,V1,V1,V4,V5], !;
 two_pair(L, [V1, V2], V), remove(L, V1, V2, [V5|Res]), FiveBest = [V1,V1,V2,V2,V5], !;
 pair(L, V1, V), remove(L, V1, [V3,V4,V5|_]), FiveBest = [V1, V1, V3, V4, V5], !;
@@ -66,8 +66,6 @@ tie([V1|_], [V2|_], lost):-
   V1 < V2,!.
 tie([V|R1], [V|R2], X):-
   tie(R1, R2, X).
-
-
 
 %Sorts the hand by number
 sortByNumber(L, Sorted):-
@@ -109,19 +107,9 @@ oneList([H|T], L2, [H|Res]):-
 
 /* straight_flush(+, -, -)
    uses flush and straight */
-straight_flush([card(X, 5), card(X, 4), card(X, 3), card(X, 2)|_], [5, 4, 3, 2, 14], ListOfAces, 1) :-
-  write(ListOfAces),
-  member(card(X, 14), ListOfAces).
-straight_flush([card(X, V1), card(X, V2), card(X, V3), card(X, V4), card(X, V5)|_], [V1, V2, V3, V4, V5], _, 1) :-
-  V1 is V2 + 1,
-  V2 is V3 + 1,
-  V3 is V4 + 1,
-  V4 is V5 + 1.
-straight_flush([card(_,X)|R], FiveBest, ListOfAces, 1) :-
-  X=\=14,
-  straight_flush(R, FiveBest, ListOfAces, 1).
-straight_flush([card(X,14)|R], FiveBest, ListOfAces, 1) :-
-  straight_flush(R, FiveBest, [card(X,14)|ListOfAces], 1).
+straight_flush(Sorted, [V1, V2, V3, V4, V5], 1) :-
+  flush(Sorted, [V1,V2,V3,V4,V5], _),
+  straight(Sorted, [V1,V2,V3,V4,V5], _).
 
 %four_of_a_kind(+, -)
 four_of_a_kind([card(_,V1), card(_,V1), card(_,V1), card(_,V1)|_], V1, 2).
@@ -129,28 +117,27 @@ four_of_a_kind([card(_,_)|R], V1, 2) :-
   four_of_a_kind(R, V1, 2).
 
 %full_house(+, -)
-full_house([card(_,V1), card(_,V1), card(_,V1), card(_,V2), card(_,V2)|_], [V1,V1,V1,V2,V2], 3).
-full_house([card(_,V2), card(_,V2), card(_,V1), card(_,V1), card(_,V1)|_], [V1,V1,V1,V2,V2], 3).
+full_house([card(_,V1), card(_,V1), card(_,V1)|R], [V1,V1,V1,V2,V2], 3) :-
+  pair(R, V2, _).
+full_house([card(_,V2), card(_,V2)|R], [V1,V1,V1,V2,V2], 3) :-
+  three_of_a_kind(R, V1, _).
 full_house([card(_,_)|R], V1, 3) :-
   full_house(R, V1, 3).
 
 %flush(+, -, -)
 flush([card(X, V1), card(X, V2), card(X, V3), card(X, V4), card(X, V5)|_], [V1,V2,V3,V4,V5], 4).
-flush([card(_,_)|R], _, 4) :-
-  flush(R, _, 4).
+flush([card(_,_)|R], X, 4) :-
+  flush(R, X, 4).
 
 %straight(+, -)
-straight([C1,Rest], FiveBest, 5):-    %If we got an ace, it needs to be the first card in the sorted list
-  C1 = card(_,14), straight([C1|Rest], FiveBest, 5, yes);
-  straigth([C1|Rest], FiveBest, 5, no).
-straight([card(_, 5), card(_, 4), card(_, 3), card(_, 2)|_], [5, 4, 3, 2, 14], 5, yes).
-straight([card(_, V1), card(_, V2), card(_, V3), card(_, V4), card(_, V5)|_], [V1, V2, V3, V4, V5], 5, _) :-
-  V1 is V2 + 1,
-  V2 is V3 + 1,
-  V3 is V4 + 1,
-  V4 is V5 + 1.
-straight([card(_,_)|R], V1, 5, GotAce) :-
-  straight(R, V1, 5, GotAce).
+straight([card(_, V1), card(_, V2), card(_, V3), card(_, V4), card(_, V5)|_], [V1,V2,V3,V4,V5], 5) :-
+  X is V1-V2+V2-V3+V3-V4+V4-V5,
+  X == 4.
+straight([card(C,14)|R], X, 5) :-
+  append(R, [card(C,1)], L),
+  straight(L, X, 5).
+straight([card(_,_)|R], X, 5) :-
+  straight(R, X, 5).
 
 %three_of_a_kind(+, -)
 three_of_a_kind([card(_,V1), card(_,V1), card(_,V1)|_], V1, 6).
