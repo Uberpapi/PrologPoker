@@ -1,4 +1,4 @@
-:-module(printtable, [pt/0]).
+:-module(printtable, [pt/0, fixvalue/2]).
 :-use_module(dealer).
 
 valuetochar('J',11).
@@ -9,7 +9,7 @@ valuetochar('A',14).
 %Print that takes in two inputs, Who did What.
 pt:-
 pokertable([Stack, Pot, _, _, _]),
-Aistack is 2000-Stack-Pot,
+(2000-Stack-Pot > 0 -> Aistack is 2000-Stack-Pot ; Aistack = 0),
 (player1(_) -> player1(XP1), fixvalue(XP1,[card(PC1,PV1), card(PC2,PV2)]); PC1='*', PV1='*', PC2='*', PV2 ='*'),
 (player2(_) -> player2(XP2), fixvalue(XP2,[card(AC1,AV1), card(AC2,AV2)]); AC1='*', AV1='*', AC2='*', AV2 ='*'),
 (flop(_) -> flop(XF), fixvalue(XF, [card(FC1,FV1), card(FC2,FV2), card(FC3,FV3)]); FC1='*', FV1='*', FC2='*', FV2 ='*', FC3 ='*', FV3 ='*'),
