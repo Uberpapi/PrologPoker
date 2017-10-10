@@ -113,9 +113,9 @@ whatToDo_River(_, PlayerAction, Answer) :-
       ; PlayerAction == check, Result > 50 -> Answer = ai_bet
       ; PlayerAction == bet, Result > 50 -> Answer = ai_call
       ; PlayerAction == raise, Result > 50 -> Answer = ai_call
-      ; PlayerAction == check, Result > 15 -> Answer = ai_check
-      ; PlayerAction == bet, Result > 15 -> Answer = ai_call
-      ; PlayerAction == raise, Result > 15 -> Answer = ai_call
+      ; PlayerAction == check, Result > 10 -> Answer = ai_check
+      ; PlayerAction == bet, Result > 10 -> Answer = ai_call
+      ; PlayerAction == raise, Result > 10 -> Answer = ai_call
       ; PlayerAction == check -> Answer = ai_check
       ; PlayerAction == bet -> Answer = ai_fold
       ; PlayerAction == raise -> Answer = ai_fold
@@ -150,14 +150,14 @@ pairevaluator([V1,V1,_,_,V5], Result):-
   player2([card(_, A),card(_, B)]),
   (   V1 == A, V1 == B -> Result is V1*2              %pocketpair
     ; (V1 == A; V1 == B), V1 > V5 -> Result is V1 + 5 %pair with 1 card in hand
-    ; (A > 11 ; B > 11) -> Result is 5                %pair on table high kicker on hand
+    ; (A > 11 ; B > 11) -> Result is 7                %pair on table high kicker on hand
     ; Result is 0                                     %else
   ), !.
 
 %evaluates highest card
 pairevaluator(_, Result):-
   player2([card(C1, A),card(C2, B)]),
-  (   (A > 11 ; B > 11) -> Result is 3
+  (   (A > 11 ; B > 11) -> Result is 5
     ; Result is 0
     ).
 
