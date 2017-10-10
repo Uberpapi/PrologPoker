@@ -32,7 +32,6 @@ whatToDo_Flop(_, PlayerAction, Answer) :-
   check(Hand, X, V),
   pairevaluator(X, Res),
   Result is R + Res + Humanfactor,
-  write(Result), nl,
   (   PlayerAction == check, V < 8 -> Answer = ai_bet
     ; PlayerAction == bet, V < 8 -> Answer = ai_raise
     ; PlayerAction == raise, V < 8 -> Answer = ai_raise
@@ -54,13 +53,12 @@ whatToDo_Turn(_, PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   turn([F]),
-  river([G]),
-  Hand = [A,B,C,D,E,F,G],
+  Hand = [A,B,C,D,E,F],
   random(-5,10,Humanfactor),
   check(Hand, X, V),
   pairevaluator(X, Res),
   Result is Res + Humanfactor,
-  write(Result), nl,
+
   (   PlayerAction == check, V < 7 -> Answer = ai_bet
     ; PlayerAction == bet, V < 7 -> Answer = ai_raise
     ; PlayerAction == raise, V < 7 -> Answer = ai_raise
