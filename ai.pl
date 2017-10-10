@@ -87,7 +87,7 @@ ai_raise :-
   nl.
 
 ai_fold :-
-  pokertable([Stack, Pot, _, _, Handsplayed]),
+  pokertable([Stack, Pot, B1, B2, Handsplayed]),
   Newstack is Stack + Pot,
-  setPokertable([Newstack, 0, _, _, Handsplayed]),
+  setPokertable([Newstack, 0, B1, B2, Handsplayed]),
   format('~nAi folds, you win ~d$~n', [Pot]).
