@@ -28,7 +28,7 @@ play :-
   retractall(river(_)),
   retractall(player1(_)),
   retractall(player2(_)),
-  setPokertable([1000, 0, [5,10], ai, 0]),nl,
+  setPokertable([1000, 0, [25,50], ai, 0]),nl,
   pt,
   write('Hello and welcome to this uber good poker game'), nl,
   write('You start with a stack of 1000'), nl,
@@ -105,7 +105,7 @@ call :-
     ; Cardsleft == 42 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river, nl, pt
     ; Cardsleft == 40 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2),pt),
   (  length(Deck, 40) -> !
-    ;  W == player, Cardsleft \== 48, Stack - X > 0 -> ai_magic(check)
+    ;  W == player, Cardsleft \== 48, Stack - X > 0 -> ai_magic(check), nl, write('Do you want to check, bet or fold?'), nl
     ; Cardsleft \== 48, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl
     ; !).
 
