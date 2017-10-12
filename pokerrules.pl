@@ -1,10 +1,6 @@
 :-module(pokerrules,[check/3, checkHand/3, handValue/1,
                     sortByNumber/2, sortByColor/2,
-                    straight_flush/3 , four_of_a_kind/3,
-                    full_house/3, flush/3, straight/3,
-                    three_of_a_kind/3, two_pair/3, whoWon/2,
-                    pair/3, highest_card/3, reverse/2, remove/3,
-                    nothing/3, doubleRemove/2]).
+                    whoWon/2]).
 :-use_module(dealer).
 
 /*Defining the value of the hand, the
@@ -31,7 +27,7 @@ check(Hand2, FiveBest2, V2),
 winner(V1,V2,Res, FiveBest1,FiveBest2),
 handValue(HV1, V1),
 handValue(HV2, V2),
-  retractall(deck(_)),
+  retractall(deck(_)), % We award the winner the pot, if there is a tie both players regain their bets
 (Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, B1, B2, Handsplayed]), write('You win '), write(Pot), write('$'),nl, write('You got '), write(HV1), nl, write('The AI got '), write(HV2)
 ; Res == lost -> Newstack is Stack, write('You looose!'),nl, write('You got ') , write(HV1), nl, write('The AI got '), write(HV2), nl
 ; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, B1, B2, Handsplayed]),write('Ooooh, both had same hand! You split '), write(Pot), write('$'), nl, write('Both got '), write(HV1), nl, write('Its a tie!'), nl),
@@ -99,13 +95,6 @@ insertColor(card(C1,V1), [card(C2,V2)|T], [card(C2,V2)|F]):-
 insertColor(card(C1,V1), [card(C2,V2)|T], [card(C1,V1),card(C2,V2)|T]):-
   C1==C2.
 insertColor(card(C,V), [], [card(C,V)]).
-
-%Merging two lists
-oneList([], [], []).
-oneList([], [H|T],[H|Res]):-
-  oneList([], T, Res).
-oneList([H|T], L2, [H|Res]):-
-  oneList(T, L2, Res).
 
 /* straight_flush(+, -, -)
    uses flush and straight */
