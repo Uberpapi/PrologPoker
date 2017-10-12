@@ -138,9 +138,9 @@ pairevaluator([V1,V1,V3,V3,V5], Result):-
   player2([card(_, A),card(_, B)]),
   (   V1 == A, V1 == B -> Result is V1 * V1 * 2
     ; V3 == A, V3 == B -> Result is V3 * V3 + 70
-    ; V1 == A ; V1 == B -> Result is V1 * V1 * 1.5
-    ; V3 == A ; V3 == B -> Result is V3 * V3 * 0.5
     ; (V1 == A, V3 == B ; V3 == A, V1 == B) -> Result is V1 * V3 * 2.5
+    ; (V1 == A ; V1 == B) -> Result is V1 * V1 * 1.5
+    ; (V3 == A ; V3 == B) -> Result is V3 * V3 * 0.5
     ; (V5 == A ; V5 == B), V5 > 11 -> Result is V5
     ; Result is 0
     ), !.
