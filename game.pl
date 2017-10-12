@@ -29,10 +29,10 @@ play :-
   retractall(player1(_)),
   retractall(player2(_)),
   setPokertable([1000, 0, [25,50], ai, 0]),nl,
-  pt,
   write('Hello and welcome to this uber good poker game'), nl,
   write('You start with a stack of 1000'), nl,
-  write('The different commands is "check", "bet", "call" or "fold"'), nl.
+  write('The different commands is "check", "bet", "call" or "fold"'), nl,
+  pt.
 
 
 go :-
@@ -121,4 +121,4 @@ allin :-
 fold :-
   write('You lost the hand'), nl,
   pt, nl,
-  write('Write go to deal the next hand'), nl.
+  write('Write "go." to deal the next hand'), nl.

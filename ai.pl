@@ -85,4 +85,4 @@ ai_fold :-
   pokertable([Stack, Pot, B1, B2, Handsplayed]),
   Newstack is Stack + Pot,
   setPokertable([Newstack, 0, B1, B2, Handsplayed]),
-  format('~nAi folds, you win ~d$~n', [Pot]).
+  format('~nAi folds, you win ~d$~nWrite "go." to deal a new hand~n', [Pot]).
