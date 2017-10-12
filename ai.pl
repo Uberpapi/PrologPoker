@@ -15,10 +15,10 @@ Asks aiLogic what to do depending on what player did
 and how many cards that have been dealt*/
 ai_magic(Player_Act) :-
   deck(Deck),
-  (   length(Deck, 48) -> whatToDo_preFlop(0, Player_Act, Answer)
-    ; length(Deck, 44) -> whatToDo_Flop(0, Player_Act, Answer)
-    ; length(Deck, 42) -> whatToDo_Turn(0, Player_Act, Answer)
-    ; length(Deck, 40) -> whatToDo_River(0, Player_Act, Answer)
+  (   length(Deck, 48) -> whatToDo_preFlop(Player_Act, Answer)
+    ; length(Deck, 44) -> whatToDo_Flop(Player_Act, Answer)
+    ; length(Deck, 42) -> whatToDo_Turn(Player_Act, Answer)
+    ; length(Deck, 40) -> whatToDo_River(Player_Act, Answer)
     ),
   call(Answer).
 

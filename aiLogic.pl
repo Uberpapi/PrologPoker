@@ -1,15 +1,14 @@
-:-module(aiLogic, [between/3, value_preflop/2, whatToDo_preFlop/3,
-                  whatToDo_Flop/3, whatToDo_Turn/3, whatToDo_River/3,
-                  straight_Chance/1, flush_Chance/1, chance/2]).
+:-module(aiLogic, [whatToDo_preFlop/2,whatToDo_Flop/2,
+                    whatToDo_Turn/2, whatToDo_River/2]).
 :-use_module(dealer).
 :-use_module(pokerrules).
 :-use_module(library(random)).
 
 /*Determines how the AI acts based
   on it's starting hand */
-whatToDo_preFlop(_, PlayerAction, Answer):-
+whatToDo_preFlop(PlayerAction, Answer):-
   player2(X),
-  value_preflop(X, NewValue),
+  value_preflop(X, NewValue), % The hand is evaluated here
   ( NewValue < 0, PlayerAction == pre -> Answer = ai_fold
   ; NewValue < 0, PlayerAction == raise -> Answer = ai_fold
   ; NewValue < 0, PlayerAction == bet -> Answer = ai_fold
@@ -23,7 +22,7 @@ whatToDo_preFlop(_, PlayerAction, Answer):-
   ; PlayerAction == raise -> Answer = ai_raise
   ; PlayerAction == call -> Answer = ai_check).
 
-whatToDo_Flop(_, PlayerAction, Answer) :-
+whatToDo_Flop(PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   Hand = [A,B,C,D,E],
@@ -49,7 +48,7 @@ whatToDo_Flop(_, PlayerAction, Answer) :-
     ; PlayerAction == raise -> Answer = ai_fold
     ).
 
-whatToDo_Turn(_, PlayerAction, Answer) :-
+whatToDo_Turn(PlayerAction, Answer) :-
   player2([A,B]),
   flop([C,D,E]),
   turn([F]),
@@ -79,7 +78,7 @@ whatToDo_Turn(_, PlayerAction, Answer) :-
 
 %  .
 
-whatToDo_River(_, PlayerAction, Answer) :-
+whatToDo_River(PlayerAction, Answer) :-
     player2([A,B]),
     flop([C,D,E]),
     turn([F]),
@@ -126,7 +125,7 @@ whatToDo_River(_, PlayerAction, Answer) :-
 pairevaluator([V1,V1,V1,V4,V5], Result):-
   player2([card(_,A),card(_,B)]),
   max(A, B, C),
-  ( V1 == A, V1 == B -> Result is 200    %Three of a kind with pocketpair
+  ( V1 == A, V1 == B -> Result is 200             %Three of a kind with pocketpair
   ; (V1 == A ; V1 == B) -> Result is V1*V1 + 50   %Three of a kind with a card from our hand
   ; (V4 == C ; V5 == C), C > 11 -> Result is C*2  %Shared three of a kind but having a high kicker
   ; Result is 0
@@ -136,12 +135,12 @@ pairevaluator([V1,V1,V1,V4,V5], Result):-
 %Evaluates two pair
 pairevaluator([V1,V1,V3,V3,V5], Result):-
   player2([card(_, A),card(_, B)]),
-  (   V1 == A, V1 == B -> Result is V1 * V1 * 2
-    ; V3 == A, V3 == B -> Result is V3 * V3 + 70
-    ; (V1 == A, V3 == B ; V3 == A, V1 == B) -> Result is V1 * V3 * 2.5
-    ; (V1 == A ; V1 == B) -> Result is V1 * V1 * 1.5
-    ; (V3 == A ; V3 == B) -> Result is V3 * V3 * 0.5
-    ; (V5 == A ; V5 == B), V5 > 11 -> Result is V5
+  (   V1 == A, V1 == B -> Result is V1 * V1 * 2                         %Two pair with the high pocketpair
+    ; V3 == A, V3 == B -> Result is V3 * V3 + 70                        %Two pair with the low pocketpair
+    ; (V1 == A, V3 == B ; V3 == A, V1 == B) -> Result is V1 * V3 * 2.5  %Two pair with both cards making one pair each
+    ; (V1 == A ; V1 == B) -> Result is V1 * V1 * 1.5                    %Two pair with the high card connected
+    ; (V3 == A ; V3 == B) -> Result is V3 * V3 * 0.5                    %Two pair with the low card connected
+    ; (V5 == A ; V5 == B), V5 > 11 -> Result is V5                      %Two pair with shared hand but a high kicker
     ; Result is 0
     ), !.
 
@@ -157,54 +156,55 @@ pairevaluator([V1,V1,_,_,V5], Result):-
 %evaluates highest card
 pairevaluator(_, Result):-
   player2([card(_, A),card(_, B)]),
-  (   (A > 11 ; B > 11) -> Result is 5
+  (   (A > 11 ; B > 11) -> Result is 5  %If we have a card Queen or higher
     ; Result is 0
     ).
 
+%Calculates the chance of getting a straight, flush or both
 chance(Hand, Value) :-
   sortByNumber(Hand, Sorted),
   sortByColor(Sorted, ColorSorted),
-  (   flush_Chance(ColorSorted, X), straight_Chance(Sorted, Y) ->  Value is X*Y+20
-    ; flush_Chance(ColorSorted, X) ->  Value is (X+5)*2
-    ; straight_Chance(Sorted, Y) -> Value is Y+5
+  doubleRemove(Sorted, Res),
+  (   flush_Chance(ColorSorted, X), straight_Chance(Res, Y) ->  Value is X*Y+20  %Both Flush and Straight chance
+    ; flush_Chance(ColorSorted, X) ->  Value is (X+5)*2                          %Flush chance
+    ; straight_Chance(Sorted, Y) -> Value is Y+5                                 %Straight chance
     ; Value is 0
     ).
 
-
+%Grants a bonus if there are 4 cards of the same color
 flush_Chance([card(X, Y),card(X, _),card(X, _),card(X, _)|_], Y).
 flush_Chance([card(_,_)|R], Y) :-
   flush_Chance(R, Y).
 
-
-straight_Chance([card(_,A),card(_,B),card(_,C),card(_,D)|_], A) :-
-  X is A - B + B - C + C - D,
+%Grants a bonus if there are 4 cards which gives a possible straight chance
+straight_Chance([card(_,A),card(_,_),card(_,_),card(_,D)|_], A) :-
+  X is A - D,
   (X == 3 ; X == 4).
-straight_Chance([card(C,14)|R], Y) :-
+straight_Chance([card(C,14)|R], Y) :- %Counting Ace as a possible straight with low cards aswell
   append(R, [card(C,1)], L),
   straight_Chance(L, Y).
 straight_Chance([card(_,_)|R], Y) :-
   straight_Chance(R, Y).
 
-/*Evaluates the hand pre_flop
-  and returns a value which the bot
-  bases it's first decision on */
-value_preflop([card(_, X),card(_, X)], Y):-
-  pokertable([_, _, _, Last_to_Act, _]),
-  random(-75, 75, Humanfactor),
+/*Evaluates the hand pre_flop and returns a value
+which the bot bases it's first decision on */
+value_preflop([card(_, X),card(_, X)], Y):- % Cases where we have a pocketpair
+  pokertable([_, _, _, Last_to_Act, _]), % We want to know Last_to_Act because we need to know if we are big or small blind. Being small blind grants a lower value
+  random(-75, 75, Humanfactor), % Calculated variable to make the bot harder to read.
  (  Last_to_Act == ai -> Y is X*30 + 40 + Humanfactor
   ;  Y is X * 30 + Humanfactor ).
 
 value_preflop([card(Color1, V1),card(Color2, V2)], Y):-
   pokertable([_, _, _, Last_to_Act, _]),
-  absolut(V1, V2, Res), StraightChanceBonus is 20 - Res * Res,
+  absolut(V1, V2, Res), StraightChanceBonus is 20 - Res * Res, % Gives points if the cards have a chance of making a straight
   HandValue is V1 * V2,
-  max(V1, V2, Hi), HighCardBonus is Hi * 2,
+  max(V1, V2, Hi), HighCardBonus is Hi * 2, % THe highest card in your starter hand grants bonus value
   random(-75, 75, Humanfactor),
   (  Last_to_Act == ai, Res < 5 -> Z is HandValue + StraightChanceBonus + HighCardBonus
   ;  Last_to_Act == player, Res < 5 -> Z is HandValue + StraightChanceBonus + HighCardBonus - 30
   ;  Last_to_Act == ai -> Z is HandValue + HighCardBonus + 30
   ;  Last_to_Act == player -> Z is HandValue + HighCardBonus - 30 ),
-  (  Color1 == Color2 -> Y is Z + 30 + Humanfactor
+  (  Color1 == Color2 -> Y is Z + 30 + Humanfactor % If the cards are the same color we grant a 30 value bonus
   ; Y is Z + Humanfactor ).
 
 %Returns the absolut value Z from X - Y
