@@ -89,7 +89,7 @@ whatToDo_River(_, PlayerAction, Answer) :-
     SharedHand = [C,D,E,F,G],
     check(SharedHand, FiveBest1, HV1),  % We check if our best hand of a total 5 cards is only by using the 5 shared
     check(OurHand, FiveBest2, HV2),     % cards or in combination with our own hand consisting of 7 cards
-    pairevaluator(FiveBest, R),
+    pairevaluator(FiveBest2, R),
     chance(SharedHand, SharedChance),
     Result is R - (SharedChance * 2) + Humanfactor,
     (   PlayerAction == check, HV1 \== HV2,  HV2 < 6 -> Answer = ai_bet %Cases where our hand is stronger than the shared hand
