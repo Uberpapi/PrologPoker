@@ -27,7 +27,7 @@ ai_check :-
   write('AI checks'),
   nl,
   pokertable([_, _, _, Last_to_Act, _]),
-  (   length(Deck, 48), Last_to_Act == ai -> dealflop(Deck), write('Flop is: '), flop
+  (   length(Deck, 48), Last_to_Act == ai -> dealflop(Deck), write('Flop is: '), flop, write('Do you want to check, bet or fold?')
     ; length(Deck, 44), Last_to_Act == ai -> dealturn(Deck), write('Turn is: '), turn, write('Do you want to check, bet or fold?')
     ; length(Deck, 42), Last_to_Act == ai -> dealriver(Deck), write('River is: '), river, write('Do you want to check, bet or fold?')
     ; length(Deck, 40), Last_to_Act == ai -> player1Cards(X),player2Cards(Y), whoWon(X,Y)
@@ -43,15 +43,14 @@ ai_call :-
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, Handsplayed]),
   (B1 > B2 -> X = B1, Smallblind = B2, W = player
   ; X = B2, Smallblind = B1, W = ai),
-  Y is Stack - X,
   Z is Pot + X,
   P is Pot + Smallblind,
   length(Deck, Cardsleft),
-  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
+  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
     ; Cardsleft == 48, Last_to_Act == player -> setPokertable([Stack, P, [B1, B2], Last_to_Act, Handsplayed])
-    ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
-    ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
-    ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
+    ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
+    ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
+    ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
   (   Cardsleft == 40 -> !
     ; Cardsleft \== 48, W == player -> ai_magic(check)
@@ -86,4 +85,4 @@ ai_fold :-
   pokertable([Stack, Pot, B1, B2, Handsplayed]),
   Newstack is Stack + Pot,
   setPokertable([Newstack, 0, B1, B2, Handsplayed]),
-  format('~nAi folds, you win ~d$~n', [Pot]).
+  format('~nAi folds, you win ~d$~nWrite "go" to deal a new hand~n', [Pot]).
