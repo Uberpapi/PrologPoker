@@ -106,7 +106,7 @@ whatToDo_River(_, PlayerAction, Answer) :-
       ; PlayerAction == raise, HV1 == 5, Humanfactor < 15 -> Answer = ai_call
       ; PlayerAction == check,  HV1 == 5 -> Answer = ai_check %Also cases where it acts upon a shared straight
       ; PlayerAction == bet, HV1 == 5 -> Answer = ai_call     %but the Humanfactor is below 15 (out of 25)
-      ; PlayerAction == raise, HV1 == 5 -> Answer = ai_fold
+      ; PlayerAction == raise, HV1 == 5 -> Answer = ai_call
       ; PlayerAction == check,  Result > 115 -> Answer = ai_bet %The rest of the cases are based upon
       ; PlayerAction == bet, Result > 115 -> Answer = ai_raise  %if we have three of a kind or lower
       ; PlayerAction == raise, Result > 115 -> Answer = ai_call
@@ -117,8 +117,8 @@ whatToDo_River(_, PlayerAction, Answer) :-
       ; PlayerAction == bet, Result > 10 -> Answer = ai_call
       ; PlayerAction == raise, Result > 10 -> Answer = ai_call
       ; PlayerAction == check -> Answer = ai_check
-      ; PlayerAction == bet -> Answer = ai_fold
-      ; PlayerAction == raise -> Answer = ai_fold
+      ; PlayerAction == bet -> Answer = ai_call
+      ; PlayerAction == raise -> Answer = ai_call
       ).
 
 
