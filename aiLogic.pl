@@ -156,7 +156,7 @@ pairevaluator([V1,V1,_,_,V5], Result):-
 
 %evaluates highest card
 pairevaluator(_, Result):-
-  player2([card(C1, A),card(C2, B)]),
+  player2([card(_, A),card(_, B)]),
   (   (A > 11 ; B > 11) -> Result is 5
     ; Result is 0
     ).

@@ -99,7 +99,7 @@ call :-
     ; X = B2, W = ai),
       length(Deck, Cardsleft),
   (   Stack - X < 0 -> Y is 0, Z is Pot + Stack + Stack, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You dont have sufficient stack, so you went allin!~nThe AI called!~n', []), allin
-    ; Cardsleft == 48, Last_to_Act == player -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, nl, pt, nl, write('Do you want to check, bet or fold?'), nl
+    ; Cardsleft == 48, Last_to_Act == player -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, nl, pt,nl, ai_magic(check), nl, write('Do you want to check, bet or fold?'), nl
     ; Cardsleft == 48, Last_to_Act == ai -> write('You call!'), S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check), pt
     ; Cardsleft == 44 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn, nl, pt
     ; Cardsleft == 42 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river, nl, pt
