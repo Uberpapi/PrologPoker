@@ -32,9 +32,9 @@ winner(V1,V2,Res, FiveBest1,FiveBest2),
 handValue(HV1, V1),
 handValue(HV2, V2),
   retractall(deck(_)),
-(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, 0, B1, B2, Handsplayed]), format('You win ~d$~nYou got ~d~nThe AI got ~d~n',[Pot,HV1,HV2])
-; Res == lost -> Newstack is Stack, format('You looose!~nYou got ~d~nThe AI got ~d~n',[HV1,HV2])
-; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, 0, B1, B2, Handsplayed]),format('Ooooh, bot had same hand! You split ~d$~nBoth got ~d~nIts a tie!~n',[Pot, HV1])),
+(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, 0, B1, B2, Handsplayed]), format('You win ~d$~nYou got ~w~nThe AI got ~w~n', [Pot,HV1,HV2])
+; Res == lost -> Newstack is Stack, format('You looose!~nYou got ~w~nThe AI got ~w~n',[HV1,HV2])
+; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, 0, B1, B2, Handsplayed]),format('Ooooh, bot had same hand! You split ~d$~nBoth got ~w~nIts a tie!~n', [Pot, HV1])),
 (Newstack > 1999 -> format('~nCongratulation, you beat the AI in ~w hands!~nIf you want to play again write "play."', [Handsplayed])
 ; Newstack < 1 -> format('~nWhat the hell, you lost after ~w hands!~nThe AI is not THAT good.~n~nIf you want to play again write "play."', [Handsplayed])
 ;write('Write "go." to deal the next hand'), nl).

@@ -27,7 +27,7 @@ ai_check :-
   write('AI checks'),
   nl,
   pokertable([_, _, _, Last_to_Act, _]),
-  (   length(Deck, 48), Last_to_Act == ai -> dealflop(Deck), write('Flop is: '), flop
+  (   length(Deck, 48), Last_to_Act == ai -> dealflop(Deck), write('Flop is: '), flop, write('Do you want to check, bet or fold?')
     ; length(Deck, 44), Last_to_Act == ai -> dealturn(Deck), write('Turn is: '), turn, write('Do you want to check, bet or fold?')
     ; length(Deck, 42), Last_to_Act == ai -> dealriver(Deck), write('River is: '), river, write('Do you want to check, bet or fold?')
     ; length(Deck, 40), Last_to_Act == ai -> player1Cards(X),player2Cards(Y), whoWon(X,Y)
