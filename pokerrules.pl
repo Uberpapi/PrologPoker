@@ -32,7 +32,7 @@ winner(V1,V2,Res, FiveBest1,FiveBest2),
 handValue(HV1, V1),
 handValue(HV2, V2),
   retractall(deck(_)),
-(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, B1, B2, Handsplayed]), write('You win '), write(Pot), write('$'),nl, write('You got '), write(HV1), nl, write('The AI got '), write(HV2)
+(Res == won -> Newstack is Stack + Pot, setPokertable([Newstack, Pot, B1, B2, Handsplayed]), write('You win '), write(Pot), write('$'),nl, write('You got '), write(HV1), nl, write('The AI got '), write(HV2), nl
 ; Res == lost -> Newstack is Stack, write('You looose!'),nl, write('You got ') , write(HV1), nl, write('The AI got '), write(HV2), nl
 ; Res == tie -> Newstack is Stack + Pot/2, setPokertable([Newstack, Pot, B1, B2, Handsplayed]),write('Ooooh, both had same hand! You split '), write(Pot), write('$'), nl, write('Both got '), write(HV1), nl, write('Its a tie!'), nl),
 (Newstack > 1999 -> format('~nCongratulation, you beat the AI in ~w hands!~nIf you want to play again write "play."', [Handsplayed])

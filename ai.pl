@@ -43,15 +43,14 @@ ai_call :-
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, Handsplayed]),
   (B1 > B2 -> X = B1, Smallblind = B2, W = player
   ; X = B2, Smallblind = B1, W = ai),
-  Y is Stack - X,
   Z is Pot + X,
   P is Pot + Smallblind,
   length(Deck, Cardsleft),
-  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
+  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
     ; Cardsleft == 48, Last_to_Act == player -> setPokertable([Stack, P, [B1, B2], Last_to_Act, Handsplayed])
-    ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
-    ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
-    ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
+    ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
+    ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
+    ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
   (   Cardsleft == 40 -> !
     ; Cardsleft \== 48, W == player -> ai_magic(check)

@@ -58,8 +58,7 @@ go :-
   ; (Aistack > NewB1 ->  Y is Stack - NewB2, Z is NewB1+NewB2
     ;Y is Stack, Z is NewB1 + Stack)),%If the AI cant afford the blind, take its whole stack as blind
   setPokertable([Y, Z, [NewB2,NewB1], W, Newhandsplayed]),
-  pt,
-  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?'), nl).
+  ( W == player -> ai_magic(pre) ; write('Do you want to call, raise or fold?'), nl),pt.
 
 check :-
   deck(Deck),
@@ -99,14 +98,14 @@ call :-
     ; X = B2, W = ai),
       length(Deck, Cardsleft),
   (   Stack - X < 0 -> Y is 0, Z is Pot + Stack + Stack, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You dont have sufficient stack, so you went allin!~nThe AI called!~n', []), allin
-    ; Cardsleft == 48, Last_to_Act == player -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, nl, pt, nl
-    ; Cardsleft == 48, Last_to_Act == ai -> write('You call!'), S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check), pt
-    ; Cardsleft == 44 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn, nl, pt
-    ; Cardsleft == 42 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river, nl, pt
-    ; Cardsleft == 40 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2),pt),
+    ; Cardsleft == 48, Last_to_Act == player -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, ai_magic(check), pt
+    ; Cardsleft == 48, Last_to_Act == ai -> write('You call!'), S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check)
+    ; Cardsleft == 44 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
+    ; Cardsleft == 42 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
+    ; Cardsleft == 40 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)),
   (  length(Deck, 40) -> !
-    ;  W == player, Cardsleft \== 48, Stack - X > 0 -> ai_magic(check), nl, write('Do you want to check, bet or fold?'), nl
-    ; Cardsleft \== 48, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl
+    ;  W == player, Cardsleft \== 48, Stack - X > 0 -> ai_magic(check), nl, write('Do you want to check, bet or fold?'), nl, pt
+    ; Cardsleft \== 48, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl, pt
     ; !).
 
 allin :-
