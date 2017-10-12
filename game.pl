@@ -31,7 +31,8 @@ play :-
   setPokertable([1000, 0, [25,50], ai, 0]),nl,
   write('Hello and welcome to this uber good poker game'), nl,
   write('You start with a stack of 1000'), nl,
-  write('The different commands is "check", "bet", "call" or "fold"'), nl,
+  write('The different commands is "go", "check", "bet", "call" or "fold"'), nl,
+  write('To deal a hand write "go"'),nl,
   pt.
 
 
@@ -47,10 +48,9 @@ go :-
   (B1 > B2 -> W = ai %Checks who starts to act
   ; W = player),
   Newhandsplayed is Handsplayed + 1,%Increase handsplayed so we know when to raise the blinds
-  IncBlind = Newhandsplayed mod 3,%When we got a multiple of 3 we want to raise the blinds
+  IncBlind is Newhandsplayed mod 3,%When we got a multiple of 3 we want to raise the blinds
   (IncBlind = 0 -> NewB2 is B2*2, NewB1 is B1*2 %When IncBlind is 0 we want to double the blinds
   ; NewB2 is B2, NewB1 is B1),
-
   Aistack is 2000-Stack,
   (Last_to_Act = player ->
     (Stack > NewB2 -> Y is Stack-NewB2, Z is NewB1+NewB2
