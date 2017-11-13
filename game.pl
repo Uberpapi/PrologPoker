@@ -100,17 +100,18 @@ call :-
   pokertable([Stack, Pot, [B1,B2], Last_to_Act, Handsplayed]),
   (B1 > B2 -> X = B1, W = player
     ; X = B2, W = ai),
-      length(Deck, Cardsleft),
+    PrePot is B1 + B2,
+    length(Deck, Cardsleft),
   (   Stack - X < 0 -> Y is 0, Z is Pot + Stack + Stack, setPokertable([Y, Z, [B1, B2], ai, Handsplayed]), format('You dont have sufficient stack, so you went allin!~nThe AI called!~n', []), allin
-    ; Cardsleft == 48, Last_to_Act == player -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, nl, write('Do you want to check, bet or fold?'), nl,  pt
-    ; Cardsleft == 48, Last_to_Act == ai -> write('You call!'), S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed]), ai_magic(check)
+    ; Cardsleft == 48, PrePot == Pot  -> write('You call!'), nl, S is Stack - X/2, P is Pot + X/2, setPokertable([S, P, [B1, B2], Last_to_Act, Handsplayed])
+    ; Cardsleft == 48 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop, nl
     ; Cardsleft == 44 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn, nl
     ; Cardsleft == 42 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river, nl
     ; Cardsleft == 40 -> write('You call!'), nl, Y is Stack - X, Z is Pot + X, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2),pt),
-  (  length(Deck, 40) -> !
-    ;  W == player, Cardsleft \== 48, Stack - X > 0 -> ai_magic(check), nl, pt
-    ; Cardsleft \== 48, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl, pt
-    ; !).
+  (  Cardsleft == 40 -> !
+    ; W \== Last_to_Act, Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl, pt
+    ; Stack - X > 0 -> nl, ai_magic(check), nl, pt
+    ; !), nl.
 
 %Deals what remains of the hand and then decide a winner
 allin :-

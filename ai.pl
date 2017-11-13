@@ -50,16 +50,19 @@ ai_call :-
   ; X = B2, Smallblind = B1, W = ai),
   Z is Pot + X, %calculate new pot if it's not the first act
   P is Pot + Smallblind, %calculate new pot if it's first act
+  Left is 2000 - (Stack + Pot),
   length(Deck, Cardsleft),
-  (   Cardsleft == 48, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
+  (   Left - X < 0 -> Y is Stack - Left, Z is Pot + Left + Left, setPokertable([Y, Z, [B1, B2], W, Handsplayed]), format('The AI dont have sufficient stack, so it went allin!~nYou called!~n', []), allin
+    ; Cardsleft == 48, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealflop(Deck), write('Flop is: '), flop
     ; Cardsleft == 48, Last_to_Act == player -> setPokertable([Stack, P, [B1, B2], Last_to_Act, Handsplayed]) %first act of the game
     ; Cardsleft == 44, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealturn(Deck), write('Turn is: '), turn
     ; Cardsleft == 42, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), dealriver(Deck), write('River is: '), river
     ; Cardsleft == 40, Last_to_Act == ai -> setPokertable([Stack, Z, [B1, B2], W, Handsplayed]), player1Cards(P1),player2Cards(P2), whoWon(P1,P2)
     ),
   (   Cardsleft == 40 -> ! %should'nt do anything more if river is dealt
-    ; Cardsleft \== 48, W == player -> ai_magic(check)  %checks if ai is next to act, and acts if true
-    ; nl, write('Do you want to check, bet or fold?'), nl),
+    ; W \== Last_to_Act, Stack - X > 0 -> ai_magic(check)  %checks if ai is next to act, and acts if true
+    ; Stack - X > 0 -> nl, write('Do you want to check, bet or fold?'), nl
+    ; !),
     nl.
 
 %ai bets depending on big blind and if ai's got enough chips for a big blind
@@ -75,19 +78,27 @@ ai_bet :-
 /*ai raises, calculates how much depending on if ai got enough chips and
 if it's first act or not pot == prepot denotes that it's the first act*/
 ai_raise :-
+  deck(Deck),
   pokertable([Stack, Pot, [B1,B2], _, Handsplayed]),
   (B1 > B2 -> X = B1, Smallblind = B2
   ; X = B2, Smallblind = B1),
   Y is 2000-(Stack+Pot), %calculate how much ai got left.
-  Raise is Y - Smallblind,  %calculates how much ai can raise at max, needed for when ai can't raise full big blind
-  S is Stack - Raise, %calculates how much player calls when ai goes all in
-  PrePot is B1+B2, %calculates how much the pot is at the moment
-  Pre is X+X, %calculates how much is needed to be able to raise a full big blind
-  (   Pot == PrePot, Y =< PrePot -> P is Pot+Y+Raise, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
-    ; Pot == PrePot, Y >= Pre -> P is Pot+X+Smallblind, setPokertable([Stack, P, [B1, B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
-    ; Y =< Pre -> P is Pot+Y+Y-X, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
-    ; P is Pot + X*2, setPokertable([Stack, P, [B1,B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
-  ).
+  Preflop is B1 + B2,
+(Y - X > 0, length(Deck, 48), Pot == Preflop -> P is Pot + X*1.5, setPokertable([Stack, P, [B1, B2], player, Handsplayed]),  format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+; Y - X > 0 -> Z is Pot + X*2, setPokertable([Stack, Z, [B1, B2], player, Handsplayed]),  format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+; S is Stack - Y, Z is Pot + 2*Y, setPokertable([S, Z, [B1, B2], player, Handsplayed]), format('The AI didnt have sufficient stack, so it went allin!~nYou auto-called!~n', []), allin).
+
+
+
+  %Raise is Y - Smallblind,  %calculates how much ai can raise at max, needed for when ai can't raise full big blind
+  %S is Stack - Raise, %calculates how much player calls when ai goes all in
+  %PrePot is B1+B2, %calculates how much the pot is at the moment
+  %Pre is X+X, %calculates how much is needed to be able to raise a full big blind
+  %(   Pot == PrePot, Y =< PrePot -> P is Pot+Y+Raise, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
+  %  ; Pot == PrePot, Y >= Pre -> P is Pot+X+Smallblind, setPokertable([Stack, P, [B1, B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+  %  ; Y =< Pre -> P is Pot+Y+Y-X, setPokertable([S, P, [B1, B2], player, Handsplayed]), format('~nThe AI had ~d$ and went allin! ~nYou auto-called ~d$~n', [Y, Raise]), allin
+  %  ; P is Pot + X*2, setPokertable([Stack, P, [B1,B2], player, Handsplayed]), format('~nAI raise!~nDo you want to call, raise or fold?~n', [])
+  %).
 
 %ai folds giving the pot to the player which is set in dynamic predicate pokertable
 ai_fold :-
